@@ -1,5 +1,5 @@
 "use client"
-
+import { signIn } from "next-auth/react";
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -55,12 +55,12 @@ export function NavbarComponent() {
           align="end"
           className="w-56 bg-primary/20 backdrop-blur-lg border-primary/10">
           <DropdownMenuItem className="focus:bg-primary/30">
-            <Button
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={() => console.log("Sign in with Google clicked")}>
-              Sign in with Google
-            </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => signIn("google")}>
+            Sign in with Google
+          </Button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

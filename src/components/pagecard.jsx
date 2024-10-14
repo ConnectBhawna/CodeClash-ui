@@ -1,3 +1,4 @@
+import { signIn } from "next-auth/react";
 import { BellRing, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -50,8 +51,10 @@ export function CardDemo({ className, ...props }) {
         <Button className="flex gap-4 items-center flex-col sm:flex-row">
            Get Started
         </Button>
-        <Button className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow hover:bg-primary/90">
-           Sign in with Google
+        <Button
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow hover:bg-primary/90"
+          onClick={() => signIn("google")}>
+          Sign in with Google
         </Button>
       </CardFooter>
     </Card>
