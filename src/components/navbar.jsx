@@ -1,103 +1,91 @@
 "use client"
 
-import Link from "next/link"
 import { useState } from "react"
-import { BarChart2, User } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+import { Menu, User, X, Home, Info, FileText, Video, Bird, Github } from "lucide-react"
 
 export function NavbarComponent() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const toggleMenu = () => setIsOpen(!isOpen)
 
   const menuItems = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/intro-video", label: "Introduction Video" },
-    { href: "https://github.com/yourusername/frontend-repo", label: "GitHub Frontend" },
-    { href: "https://github.com/yourusername/backend-repo", label: "GitHub Backend" },
+    { name: "Home", icon: Home },
+    { name: "About", icon: Info },
+    { name: "Overview", icon: FileText },
+    { name: "Introduction Video", icon: Video },
+    { name: "Redpanda Overview", icon: Bird },
+    { name: "Github Backend", icon: Github },
+    { name: "Github Frontend", icon: Github },
   ]
 
   return (
     (<nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-blue-900 bg-opacity-90 backdrop-filter backdrop-blur-lg text-white border-b border-white border-opacity-20">
-      <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-4 text-white hover:text-blue-200">
-            <BarChart2 className="h-6 w-6" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent
-          side="left"
-          className="w-[300px] sm:w-[400px] bg-blue-900 bg-opacity-50 backdrop-filter backdrop-blur-xl text-white border-r border-white border-opacity-20">
-          <SheetHeader>
-            <SheetTitle className="text-white text-2xl font-bold">Menu</SheetTitle>
-          </SheetHeader>
-          <Card
-            className="mt-6 bg-blue-800 bg-opacity-30 backdrop-filter backdrop-blur-lg text-white border border-white border-opacity-10 shadow-lg">
-            <CardContent className="grid gap-4 p-6">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-lg font-medium hover:text-blue-200 transition-colors duration-200 py-2 px-4 rounded-md hover:bg-white hover:bg-opacity-10"
-                  onClick={() => setIsMenuOpen(false)}>
-                  {item.label}
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-        </SheetContent>
-      </Sheet>
-      <div className="flex-1 flex justify-center">
-        <Link
-          href="/"
-          className="text-2xl font-bold text-white hover:text-blue-200 transition-colors duration-200">
-          Your Logo
-        </Link>
+      className="relative flex items-center justify-between p-4 bg-primary text-primary-foreground">
+      <div
+        className={`transition-all duration-300 ease-in-out ${isOpen ? 'w-80' : 'w-12'}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="z-20 transition-transform duration-200 ease-in-out hover:scale-110"
+          onClick={toggleMenu}>
+          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
+        </Button>
       </div>
+      <div className="text-lg font-semibold">Educate Detectives</div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-4 text-white hover:text-blue-200">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Open user menu</span>
+            className="transition-transform duration-200 ease-in-out hover:scale-110">
+            <User className="h-6 w-6" />
+            <span className="sr-only">User profile</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="bg-blue-900 bg-opacity-70 backdrop-filter backdrop-blur-lg text-white border border-white border-opacity-20">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-white bg-opacity-20" />
-          <DropdownMenuItem
-            className="hover:bg-white hover:bg-opacity-10 focus:bg-white focus:bg-opacity-10">Profile</DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-white hover:bg-opacity-10 focus:bg-white focus:bg-opacity-10">Settings</DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-white hover:bg-opacity-10 focus:bg-white focus:bg-opacity-10">Logout</DropdownMenuItem>
+          className="w-56 bg-primary/20 backdrop-blur-lg border-primary/10">
+          <DropdownMenuItem className="focus:bg-primary/30">
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={() => console.log("Sign in with Google clicked")}>
+              Sign in with Google
+            </Button>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <Card
+        className={`absolute top-full left-0 mt-2 w-72 bg-primary/20 backdrop-blur-lg border-primary/10 shadow-lg rounded-lg overflow-hidden z-10 transition-all duration-300 ease-in-out ${
+          isOpen ? "opacity-100 translate-y-0 ml-4" : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}>
+        <ul className="py-4 space-y-2">
+          {menuItems.map((item, index) => (
+            <li key={index} className="px-3">
+              <Button
+                variant="ghost"
+                className="w-full text-left px-4 py-2 hover:bg-primary/30 hover:text-primary-foreground transition-colors duration-200 ease-in-out rounded-md flex items-center space-x-3"
+                onClick={() => {
+                  console.log(`Clicked on ${item.name}`)
+                  setIsOpen(false)
+                }}>
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <span className="flex-grow">{item.name}</span>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </nav>)
   );
 }
+export default NavbarComponent;
