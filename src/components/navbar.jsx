@@ -28,7 +28,7 @@ export function NavbarComponent() {
 
   return (
     (<nav
-      className="relative flex items-center justify-between p-4 bg-primary text-primary-foreground">
+      className="relative bg-opacity-50 flex items-center justify-between p-4 bg-primary text-primary-foreground">
       <div
         className={`transition-all duration-300 ease-in-out ${isOpen ? 'w-80' : 'w-12'}`}>
         <Button
@@ -40,7 +40,7 @@ export function NavbarComponent() {
           <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
         </Button>
       </div>
-      <div className="text-lg font-semibold">Educate Detectives</div>
+      <div className="text-lg font-semibold">Tech Quiz App</div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
