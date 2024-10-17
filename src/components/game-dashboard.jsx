@@ -6,15 +6,35 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Brain, Send, Trophy, MessageSquare, Zap } from "lucide-react"
+import { Brain, Send, Trophy, MessageSquare, Zap, Clock, Users } from "lucide-react"
 
 const generateAIQuestion = () => {
   const questions = [
-    "What is the capital of France?",
-    "Who wrote 'Romeo and Juliet'?",
-    "What is the chemical symbol for gold?",
-    "In which year did World War II end?",
-    "What is the largest planet in our solar system?"
+    {
+      question: "What is the capital of France?",
+      options: ["Paris", "London", "Berlin", "Madrid"],
+      correct: "Paris"
+    },
+    {
+      question: "Who wrote 'Romeo and Juliet'?",
+      options: ["William Shakespeare", "Charles Dickens", "Mark Twain", "Jane Austen"],
+      correct: "William Shakespeare"
+    },
+    {
+      question: "What is the chemical symbol for gold?",
+      options: ["Au", "Ag", "Pb", "Fe"],
+      correct: "Au"
+    },
+    {
+      question: "In which year did World War II end?",
+      options: ["1945", "1939", "1918", "1965"],
+      correct: "1945"
+    },
+    {
+      question: "What is the largest planet in our solar system?",
+      options: ["Jupiter", "Saturn", "Earth", "Mars"],
+      correct: "Jupiter"
+    }
   ]
   return questions[Math.floor(Math.random() * questions.length)];
 }
@@ -34,21 +54,34 @@ const initialChatMessages = [
 ]
 
 export function GameDashboardComponent() {
-  const [question, setQuestion] = useState("")
-  const [answer, setAnswer] = useState("")
+  const [question, setQuestion] = useState({})
+  const [selectedOption, setSelectedOption] = useState("")
   const [score, setScore] = useState(0)
   const [chatMessages, setChatMessages] = useState(initialChatMessages)
   const [chatInput, setChatInput] = useState("")
+  const [timer, setTimer] = useState(60)
+  const [peopleJoined, setPeopleJoined] = useState(5) // Mock number of people joined
+  const [questionNumber, setQuestionNumber] = useState(1)
 
   useEffect(() => {
     setQuestion(generateAIQuestion())
   }, [])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   const handleSubmitAnswer = (e) => {
     e.preventDefault()
-    setScore(score + 100)
-    setAnswer("")
+    if (selectedOption === question.correct) {
+      setScore(score + 100)
+    }
+    setSelectedOption("")
     setQuestion(generateAIQuestion())
+    setQuestionNumber(questionNumber + 1)
   }
 
   const handleSendMessage = (e) => {
@@ -60,29 +93,40 @@ export function GameDashboardComponent() {
   }
 
   return (
-    (<div
-      className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
-      <div
-        className="container mx-auto bg-white bg-opacity-90 rounded-xl shadow-2xl p-6">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">AI Quiz Game</h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
+      <div className="container mx-auto bg-white bg-opacity-90 rounded-xl shadow-2xl p-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800">AI Quiz Game</h1>
+          <div className="flex items-center gap-2 text-xl text-gray-800">
+            <Users className="h-6 w-6 text-blue-500" />
+            <span>{peopleJoined} people joined</span>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="col-span-1 md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
-                <Brain className="h-8 w-8 text-purple-500" />
-                AI-Generated Question
+                <Clock className="h-6 w-6 text-red-500" />
+                <span className="text-xl font-bold text-red-500">Time Left: {timer}s</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xl font-semibold mb-6 animate-pulse">{question}</p>
-              <form onSubmit={handleSubmitAnswer} className="flex gap-2">
-                <Input
-                  type="text"
-                  placeholder="Your answer"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  className="flex-grow text-lg" />
-                <Button type="submit" className="bg-purple-500 hover:bg-purple-600">
+              <p className="text-xl font-semibold mb-2">Question {questionNumber}</p>
+              <p className="text-xl font-semibold mb-6 animate-pulse">{question.question}</p>
+              <form onSubmit={handleSubmitAnswer} className="flex flex-col gap-2">
+                {question.options && question.options.map((option, index) => (
+                  <label key={index} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="answer"
+                      value={option}
+                      checked={selectedOption === option}
+                      onChange={(e) => setSelectedOption(e.target.value)}
+                      className="form-radio text-purple-500" />
+                    <span className="text-lg">{option}</span>
+                  </label>
+                ))}
+                <Button type="submit" className="bg-purple-500 hover:bg-purple-600 mt-4">
                   <Zap className="mr-2 h-4 w-4" />
                   Submit
                 </Button>
@@ -153,7 +197,7 @@ export function GameDashboardComponent() {
           </Card>
         </div>
       </div>
-    </div>)
+    </div>
   );
 }
 export default GameDashboardComponent;
