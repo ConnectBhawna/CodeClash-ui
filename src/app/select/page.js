@@ -2,8 +2,6 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import Script from "next/script";
 import Navbar from "@/components/navbar";
-import Pagecard from "@/components/pagecard";
-import Dashboard from "@/components/game-dashboard";
 import SelectAvatar from "@/components/avatarselection";
 
 
