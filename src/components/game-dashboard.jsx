@@ -7,37 +7,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Brain, Send, Trophy, MessageSquare, Zap, Clock, Users } from "lucide-react"
+import Groq from "groq-sdk"
 
-const generateAIQuestion = () => {
-  const questions = [
-    {
-      question: "What is the capital of France?",
-      options: ["Paris", "London", "Berlin", "Madrid"],
-      correct: "Paris"
-    },
-    {
-      question: "Who wrote 'Romeo and Juliet'?",
-      options: ["William Shakespeare", "Charles Dickens", "Mark Twain", "Jane Austen"],
-      correct: "William Shakespeare"
-    },
-    {
-      question: "What is the chemical symbol for gold?",
-      options: ["Au", "Ag", "Pb", "Fe"],
-      correct: "Au"
-    },
-    {
-      question: "In which year did World War II end?",
-      options: ["1945", "1939", "1918", "1965"],
-      correct: "1945"
-    },
-    {
-      question: "What is the largest planet in our solar system?",
-      options: ["Jupiter", "Saturn", "Earth", "Mars"],
-      correct: "Jupiter"
-    }
-  ]
-  return questions[Math.floor(Math.random() * questions.length)];
-}
+const groq = new Groq({ apiKey: "" , dangerouslyAllowBrowser: true});
+
+
+const generateAIQuizzes = async (topic, count) => {
+  const response = await groq.chat.completions.create({
+    messages: [
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: `Generate ${count} multiple-choice quiz questions about ${topic} in JSON format. Each question should have the following structure: { "question": "<question text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct": <index of correct option> }. Only provide the JSON array of questions.` }
+    ],
+    model: "llama3-8b-8192",
+  });
+
+  const text = response.choices[0]?.message?.content.trim();
+  console.log("Raw response text:", text);
+
+  if (!text) {
+    throw new Error("No response text received from Groq API");
+  }
+
+  const jsonStartIndex = text.indexOf('[');
+  const jsonEndIndex = text.lastIndexOf(']') + 1;
+  const jsonString = text.substring(jsonStartIndex, jsonEndIndex);
+
+  try {
+    const quizzes = JSON.parse(jsonString);
+    console.log("Parsed quizzes:", quizzes);
+    return quizzes;
+  } catch (error) {
+    console.error("Error parsing JSON response:", error);
+    throw new Error("Invalid JSON format received from Groq API");
+  }
+};
 
 const leaderboardData = [
   { name: "Alice", score: 1200, avatar: "/placeholder.svg?height=32&width=32" },
@@ -47,24 +50,26 @@ const leaderboardData = [
   { name: "Eve", score: 800, avatar: "/placeholder.svg?height=32&width=32" }
 ]
 
-const initialChatMessages = [
+const initialMessages = [
   { user: "Alice", message: "Good luck everyone!" },
   { user: "Bob", message: "This is fun!" },
   { user: "Charlie", message: "I'm ready for the next question!" }
 ]
 
 export function GameDashboardComponent() {
-  const [question, setQuestion] = useState({})
+  const [questions, setQuestions] = useState([])
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedOption, setSelectedOption] = useState("")
   const [score, setScore] = useState(0)
-  const [chatMessages, setChatMessages] = useState(initialChatMessages)
+  const [chatMessages, setChatMessages] = useState(initialMessages)
   const [chatInput, setChatInput] = useState("")
   const [timer, setTimer] = useState(60)
-  const [peopleJoined, setPeopleJoined] = useState(5) // Mock number of people joined
+  const [peopleJoined, setPeopleJoined] = useState(5) 
   const [questionNumber, setQuestionNumber] = useState(1)
+  const [isCorrect, setIsCorrect] = useState(null)
 
   useEffect(() => {
-    setQuestion(generateAIQuestion())
+    handleGenerateQuizzes()
   }, [])
 
   useEffect(() => {
@@ -74,14 +79,35 @@ export function GameDashboardComponent() {
     return () => clearInterval(interval)
   }, [])
 
+  const handleGenerateQuizzes = async () => {
+    try {
+      const quizzes = await generateAIQuizzes("JavaScript", 10);
+      setQuestions(quizzes);
+      setCurrentQuestionIndex(0);
+      setSelectedOption("");
+      setTimer(60);
+      setIsCorrect(null);
+    } catch (error) {
+      console.error("Error generating quizzes:", error);
+    }
+  };
+
   const handleSubmitAnswer = (e) => {
     e.preventDefault()
-    if (selectedOption === question.correct) {
-      setScore(score + 100)
+    const correctOption = questions[currentQuestionIndex].options[questions[currentQuestionIndex].correct];
+    if (selectedOption === correctOption) {
+      setScore(prevScore => prevScore + 100)
+      setIsCorrect(true);
+    } else {
+      setIsCorrect(false);
     }
-    setSelectedOption("")
-    setQuestion(generateAIQuestion())
-    setQuestionNumber(questionNumber + 1)
+    setTimeout(() => {
+      setSelectedOption("")
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1)
+      setQuestionNumber(prevNumber => prevNumber + 1)
+      setTimer(60)
+      setIsCorrect(null);
+    }, 2000); // Wait for 2 seconds before moving to the next question
   }
 
   const handleSendMessage = (e) => {
@@ -91,6 +117,8 @@ export function GameDashboardComponent() {
       setChatInput("")
     }
   }
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
@@ -111,26 +139,35 @@ export function GameDashboardComponent() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xl font-semibold mb-2">Question {questionNumber}</p>
-              <p className="text-xl font-semibold mb-6 animate-pulse">{question.question}</p>
-              <form onSubmit={handleSubmitAnswer} className="flex flex-col gap-2">
-                {question.options && question.options.map((option, index) => (
-                  <label key={index} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="answer"
-                      value={option}
-                      checked={selectedOption === option}
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                      className="form-radio text-purple-500" />
-                    <span className="text-lg">{option}</span>
-                  </label>
-                ))}
-                <Button type="submit" className="bg-purple-500 hover:bg-purple-600 mt-4">
-                  <Zap className="mr-2 h-4 w-4" />
-                  Submit
-                </Button>
-              </form>
+              {currentQuestion && (
+                <>
+                  <p className="text-xl font-semibold mb-2">Question {questionNumber}</p>
+                  <p className="text-xl font-semibold mb-6 animate-pulse">{currentQuestion.question}</p>
+                  <form onSubmit={handleSubmitAnswer} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {currentQuestion.options && currentQuestion.options.map((option, index) => (
+                      <label 
+                        key={index} 
+                        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors 
+                          ${selectedOption === option ? (isCorrect === null ? 'bg-purple-300' : isCorrect ? 'bg-green-300' : 'bg-red-300') : 'bg-purple-100'} 
+                          hover:bg-purple-200`}
+                      >
+                        <input
+                          type="radio"
+                          name="answer"
+                          value={option}
+                          checked={selectedOption === option}
+                          onChange={(e) => setSelectedOption(e.target.value)}
+                          className="form-radio text-purple-500 hidden" />
+                        <span className="text-lg">{option}</span>
+                      </label>
+                    ))}
+                    <Button type="submit" className="bg-purple-500 hover:bg-purple-600 mt-4 col-span-1 md:col-span-2">
+                      <Zap className="mr-2 h-4 w-4" />
+                      Submit
+                    </Button>
+                  </form>
+                </>
+              )}
               <p className="mt-6 text-2xl font-bold text-purple-600">Your Score: {score}</p>
             </CardContent>
           </Card>
