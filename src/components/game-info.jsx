@@ -118,7 +118,7 @@ export function GameInfoComponent() {
           </CardFooter>
         </Card>
         <div className="mt-4 flex justify-center">
-          <Button className="w-full" onClick={()=>router.push("/dashboard")} >
+          <Button className="w-full" onClick={()=>router.push("/select")} >
             Start Quiz
           </Button>
         </div>
