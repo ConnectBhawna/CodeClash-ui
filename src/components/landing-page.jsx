@@ -3,9 +3,7 @@ import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSocket } from "@/hooks/useSocket";
-import { sign, decode } from "jsonwebtoken";
 
 const techLogos = [
   {
@@ -81,37 +79,8 @@ function FloatingLogo({ svg, color, initialPosition }) {
   );
 }
 
-export function LandingPage({ session }) {
-  const router = useRouter();
+export function LandingPage({ session, setGameState }) {
   const [floatingLogos, setFloatingLogos] = useState([]);
-  const socket = useSocket(session.id_token);
-  const [msg, setMsg] = useState([]);
-  const [gameState, setGameState] = useState(null);
-  const [questions, setQuestions] = useState([]);
-
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
-    socket.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      if (message.gameState) {
-        setGameState(message.gameState);
-        if (message.gameState[0]?.questions.length > 0) {
-          setQuestions(message.gameState[0].questions);
-        }
-      }
-
-      setMsg((prev) => [...prev, message]);
-    };
-    console.log(msg);
-    console.log("socket", socket);
-
-    return () => {
-      socket.onmessage = null; // Clean up the previous handler
-    };
-  }, [socket]);
 
   useEffect(() => {
     setFloatingLogos(
@@ -154,7 +123,7 @@ export function LandingPage({ session }) {
               <Button
                 className="w-full"
                 variant="default"
-                onClick={() => router.push("/game_info")}
+                onClick={() => setGameState("game_info")}
               >
                 Get Started
               </Button>
@@ -181,4 +150,3 @@ export function LandingPage({ session }) {
     </div>
   );
 }
-export default LandingPage;

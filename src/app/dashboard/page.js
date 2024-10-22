@@ -5,7 +5,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import Script from "next/script";
 import Navbar from "@/components/navbar";
-import Dashboard from "@/components/game-dashboard";
+import { GameDashboardComponent } from "@/components/game-dashboard";
 import { useSession } from "next-auth/react";
 
 export default function Home() {
@@ -25,7 +25,7 @@ export default function Home() {
         strategy="beforeInteractive"
       />
       <Navbar />
-      <Dashboard session={session} />
+      <GameDashboardComponent session={session} />
     </>
   );
 }

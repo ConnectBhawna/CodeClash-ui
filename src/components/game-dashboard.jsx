@@ -74,7 +74,7 @@ const initialMessages = [
   { user: "Charlie", message: "I'm ready the next question!" },
 ];
 
-function GameDashboardComponent({ session }) {
+export function GameDashboardComponent({ socket }) {
   const searchParams = useSearchParams(); // Use searchParams instead of router
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -86,33 +86,6 @@ function GameDashboardComponent({ session }) {
   const [peopleJoined, setPeopleJoined] = useState(5);
   const [questionNumber, setQuestionNumber] = useState(1);
   const [isCorrect, setIsCorrect] = useState(null);
-  const socket = useSocket(session.id_token);
-  const [msg, setMsg] = useState([]);
-  const [gameState, setGameState] = useState(null);
-
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
-    socket.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      if (message.gameState) {
-        setGameState(message.gameState);
-        if (message.gameState[0]?.questions.length > 0) {
-          setQuestions(message.gameState[0].questions);
-        }
-      }
-
-      setMsg((prev) => [...prev, message]);
-    };
-    console.log(msg);
-    console.log("socket", socket);
-
-    return () => {
-      socket.onmessage = null; // Clean up the previous handler
-    };
-  }, [socket]);
 
   useEffect(() => {
     // Get interests from URL search params
@@ -348,5 +321,3 @@ function GameDashboardComponent({ session }) {
     </div>
   );
 }
-
-export default GameDashboardComponent;

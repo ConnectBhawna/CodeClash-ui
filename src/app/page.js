@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import Script from "next/script";
 import Navbar from "@/components/navbar";
-import LandingPage from "@/components/landing-page";
+import { LandingPage } from "@/components/landing-page";
 import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { GameInfoComponent } from "@/components/game-info";
+import { GamePage } from "@/components/avatar-selection-tech-logos";
+import { GameDashboardComponent } from "@/components/game-dashboard";
 
 const ClientComponent = dynamic(() => import("./ClientComponent"), {
   ssr: false,
@@ -15,6 +17,68 @@ const ClientComponent = dynamic(() => import("./ClientComponent"), {
 
 export default function Home() {
   const { data: session } = useSession();
+  const [gameState, setGameState] = useState("Login");
+
+  console.log(gameState);
+
+  const renderGameContent = () => {
+    switch (gameState) {
+      case "Login":
+        return renderLoginPage();
+      case "game_info":
+        return renderGameInfoPage();
+      case "select":
+        return renderSelectPage();
+      case "waiting":
+        return renderSelectPage();
+      // case "InProgress":
+      //   return (
+      //     <>
+      //       {renderQuestion()}
+      //       <button onClick={nextQuestion}>Next Question</button>
+      //       {renderLeaderboard()}
+      //     </>
+      //   );
+      // case "Finished":
+      //   return (
+      //     <>
+      //       <h2>Game Over!</h2>
+      //       {renderLeaderboard()}
+      //     </>
+      //   );
+      default:
+        return renderLoginPage();
+    }
+  };
+
+  const renderLoginPage = () => {
+    return <LandingPage session={session} setGameState={setGameState} />;
+  };
+
+  const renderGameInfoPage = () => {
+    return <GameInfoComponent setGameState={setGameState} />;
+  };
+
+  const renderSelectPage = () => {
+    return <GamePage session={session} setGameState={setGameState} />;
+  };
+
+  const renderWaitingPage = () => {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div>
+          Waiting ...
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => signIn("google")}
+          >
+            Start Game
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   if (!session) {
     return (
@@ -43,16 +107,8 @@ export default function Home() {
 
   return (
     <>
-      <Script
-        src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"
-        strategy="beforeInteractive"
-      />
-      <Script
-        src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.halo.min.js"
-        strategy="beforeInteractive"
-      />
       <Navbar />
-      <LandingPage session={session} />
+      {renderGameContent()}
     </>
   );
 }
