@@ -1,11 +1,12 @@
-'use client'
+"use client";
 import Link from "next/link";
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useSocket } from "@/hooks/useSocket";
 
 const avatars = [
   { id: 1, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 1" },
@@ -15,12 +16,12 @@ const avatars = [
 ];
 
 const techInterests = [
-  { id: 'react', label: 'React' },
-  { id: 'vue', label: 'Vue' },
-  { id: 'angular', label: 'Angular' },
-  { id: 'nodejs', label: 'Node.js' },
-  { id: 'python', label: 'Python' },
-  { id: 'tailwind', label: 'Tailwind CSS' },
+  { id: "react", label: "React" },
+  { id: "vue", label: "Vue" },
+  { id: "angular", label: "Angular" },
+  { id: "nodejs", label: "Node.js" },
+  { id: "python", label: "Python" },
+  { id: "tailwind", label: "Tailwind CSS" },
 ];
 
 const logoUrls = [
@@ -32,12 +33,39 @@ const logoUrls = [
   "https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/tailwind/tailwind.png",
 ];
 
-export function AvatarSelectionTechLogos() {
+export function AvatarSelectionTechLogos({ session }) {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [logos, setLogos] = useState([]);
   const [hoveredAvatar, setHoveredAvatar] = useState(null);
   const router = useRouter();
+  const socket = useSocket(session.id_token);
+  const [msg, setMsg] = useState([]);
+  const [gameState, setGameState] = useState(null);
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+    socket.onmessage = function (event) {
+      const message = JSON.parse(event.data);
+      console.log(message);
+      if (message.gameState) {
+        setGameState(message.gameState);
+        if (message.gameState[0]?.questions.length > 0) {
+          setQuestions(message.gameState[0].questions);
+        }
+      }
+
+      setMsg((prev) => [...prev, message]);
+    };
+    console.log(msg);
+    console.log("socket", socket);
+
+    return () => {
+      socket.onmessage = null; // Clean up the previous handler
+    };
+  }, [socket]);
 
   useEffect(() => {
     const newLogos = logoUrls.map((_, index) => ({
@@ -50,8 +78,8 @@ export function AvatarSelectionTechLogos() {
     setLogos(newLogos);
 
     const moveLogos = () => {
-      setLogos(prevLogos =>
-        prevLogos.map(logo => ({
+      setLogos((prevLogos) =>
+        prevLogos.map((logo) => ({
           ...logo,
           y: (logo.y + logo.speed) % 100,
         }))
@@ -67,8 +95,8 @@ export function AvatarSelectionTechLogos() {
   };
 
   const handleInterestToggle = (id) => {
-    setSelectedInterests(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setSelectedInterests((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
@@ -81,12 +109,12 @@ export function AvatarSelectionTechLogos() {
       console.log("Please select at least one tech interest");
       return;
     }
-    router.push(`/dashboard?interests=${selectedInterests.join(',')}`);
+    router.push(`/dashboard?interests=${selectedInterests.join(",")}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
-      {logos.map(logo => (
+      {logos.map((logo) => (
         <img
           key={logo.id}
           src={logoUrls[logo.id]}
@@ -95,15 +123,17 @@ export function AvatarSelectionTechLogos() {
           style={{
             left: `${logo.x}%`,
             top: `${logo.y}%`,
-            transform: 'translate(-50%, -50%)',
+            transform: "translate(-50%, -50%)",
             width: `${logo.size}px`,
             height: `${logo.size}px`,
           }}
         />
       ))}
       <div className="container mx-auto p-4 max-w-2xl relative z-10">
-        <h1 className="text-3xl font-bold mb-6 text-center">Select Your Avatar and Tech Interests</h1>
-        
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Select Your Avatar and Tech Interests
+        </h1>
+
         <div className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">Choose Your Avatar</h2>
           <div className="grid grid-cols-4 gap-4">
@@ -116,11 +146,11 @@ export function AvatarSelectionTechLogos() {
               >
                 <Avatar
                   className={`cursor-pointer w-16 h-16 transition-all duration-200 ${
-                    selectedAvatar === avatar.id 
-                      ? 'bg-primary text-white' 
+                    selectedAvatar === avatar.id
+                      ? "bg-primary text-white"
                       : hoveredAvatar === avatar.id
-                        ? 'bg-gray-700'
-                        : 'bg-gray-600'
+                      ? "bg-gray-700"
+                      : "bg-gray-600"
                   }`}
                   onClick={() => handleAvatarSelect(avatar.id)}
                 >
@@ -149,7 +179,9 @@ export function AvatarSelectionTechLogos() {
         </div>
 
         <div className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
-          <h2 className="text-xl font-semibold mb-4">Select Your Tech Interests</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Select Your Tech Interests
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             {techInterests.map((interest) => (
               <div key={interest.id} className="flex items-center space-x-3">
@@ -159,7 +191,9 @@ export function AvatarSelectionTechLogos() {
                   onCheckedChange={() => handleInterestToggle(interest.id)}
                   className="border-gray-400"
                 />
-                <Label htmlFor={interest.id} className="text-gray-200">{interest.label}</Label>
+                <Label htmlFor={interest.id} className="text-gray-200">
+                  {interest.label}
+                </Label>
               </div>
             ))}
           </div>

@@ -6,14 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Send, Trophy, MessageSquare, Zap, Clock, Users } from "lucide-react";
+import {
+  Brain,
+  Send,
+  Trophy,
+  MessageSquare,
+  Zap,
+  Clock,
+  Users,
+} from "lucide-react";
 import Groq from "groq-sdk";
+import { useSocket } from "@/hooks/useSocket";
 
 const groq = new Groq({
-  apiKey: "YOUR_GROQ_API",
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
   dangerouslyAllowBrowser: true,
 });
-
 
 const generateAIQuizzes = async (topic, count) => {
   const response = await groq.chat.completions.create({
@@ -21,7 +29,7 @@ const generateAIQuizzes = async (topic, count) => {
       { role: "system", content: "You are a helpful assistant." },
       {
         role: "user",
-        content: `Generate ${count} multiple-choice quiz questions about ${topic} in JSON format. Each question should have the following structure: { "question": "<question text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct": <index of correct option> }. Only provide the JSON array of questions.`,
+        content: `Generate ${count} multiple-choice quiz questions about ${topic} in JSON format. Each question should have the following structure: { "text": "<question text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correctAnswer": <index of correct option> }. Only provide the JSON array of questions.`,
       },
     ],
     model: "llama3-8b-8192",
@@ -51,7 +59,11 @@ const generateAIQuizzes = async (topic, count) => {
 const leaderboardData = [
   { name: "Alice", score: 1200, avatar: "/placeholder.svg?height=32&width=32" },
   { name: "Bob", score: 1050, avatar: "/placeholder.svg?height=32&width=32" },
-  { name: "Charlie", score: 900, avatar: "/placeholder.svg?height=32&width=32" },
+  {
+    name: "Charlie",
+    score: 900,
+    avatar: "/placeholder.svg?height=32&width=32",
+  },
   { name: "David", score: 850, avatar: "/placeholder.svg?height=32&width=32" },
   { name: "Eve", score: 800, avatar: "/placeholder.svg?height=32&width=32" },
 ];
@@ -62,7 +74,7 @@ const initialMessages = [
   { user: "Charlie", message: "I'm ready the next question!" },
 ];
 
-function GameDashboardComponent() {
+function GameDashboardComponent({ session }) {
   const searchParams = useSearchParams(); // Use searchParams instead of router
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -74,21 +86,61 @@ function GameDashboardComponent() {
   const [peopleJoined, setPeopleJoined] = useState(5);
   const [questionNumber, setQuestionNumber] = useState(1);
   const [isCorrect, setIsCorrect] = useState(null);
+  const socket = useSocket(session.id_token);
+  const [msg, setMsg] = useState([]);
+  const [gameState, setGameState] = useState(null);
 
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+    socket.onmessage = function (event) {
+      const message = JSON.parse(event.data);
+      console.log(message);
+      if (message.gameState) {
+        setGameState(message.gameState);
+        if (message.gameState[0]?.questions.length > 0) {
+          setQuestions(message.gameState[0].questions);
+        }
+      }
+
+      setMsg((prev) => [...prev, message]);
+    };
+    console.log(msg);
+    console.log("socket", socket);
+
+    return () => {
+      socket.onmessage = null; // Clean up the previous handler
+    };
+  }, [socket]);
 
   useEffect(() => {
     // Get interests from URL search params
-    const interests = searchParams.get('interests');
+    const interests = searchParams.get("interests");
     if (interests) {
-      handleGenerateQuizzes(interests.split(','));
+      handleGenerateQuizzes(interests.split(","));
     }
   }, [searchParams]);
-
 
   const handleGenerateQuizzes = async (interests) => {
     try {
       const quizzes = await generateAIQuizzes(interests.join(" and "), 10);
       setQuestions(quizzes);
+      if (socket) {
+        console.log("quiz", quizzes);
+        socket.send(
+          JSON.stringify({
+            type: "CREATE_GAME",
+            quizName: "QUIZZZ",
+            questions: quizzes,
+          })
+        );
+      } else {
+        console.log("msg not sent", {
+          type: "CREATE_GAME",
+          quizName: "QUIZZZ",
+        });
+      }
       setCurrentQuestionIndex(0);
       setSelectedOption("");
       setTimer(60);
@@ -119,7 +171,10 @@ function GameDashboardComponent() {
 
   const handleSubmitAnswer = (e) => {
     e.preventDefault();
-    const correctOption = questions[currentQuestionIndex].options[questions[currentQuestionIndex].correct];
+    const correctOption =
+      questions[currentQuestionIndex].options[
+        questions[currentQuestionIndex].correctAnswer
+      ];
     if (selectedOption === correctOption) {
       setScore((prevScore) => prevScore + 100);
       setIsCorrect(true);
@@ -160,21 +215,38 @@ function GameDashboardComponent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <Clock className="h-6 w-6 text-red-500" />
-                <span className="text-xl font-bold text-red-500">Time Left: {timer}s</span>
+                <span className="text-xl font-bold text-red-500">
+                  Time Left: {timer}s
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {currentQuestion && (
                 <>
-                  <p className="text-xl font-semibold mb-2">Question {questionNumber}</p>
-                  <p className="text-xl font-semibold mb-6 animate-pulse">{currentQuestion.question}</p>
-                  <form onSubmit={handleSubmitAnswer} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p className="text-xl font-semibold mb-2">
+                    Question {questionNumber}
+                  </p>
+                  <p className="text-xl font-semibold mb-6 animate-pulse">
+                    {currentQuestion.text}
+                  </p>
+                  <form
+                    onSubmit={handleSubmitAnswer}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
                     {currentQuestion.options &&
                       currentQuestion.options.map((option, index) => (
                         <label
                           key={index}
                           className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors 
-                          ${selectedOption === option ? (isCorrect === null ? "bg-purple-300" : isCorrect ? "bg-green-300" : "bg-red-300") : "bg-purple-100"} 
+                          ${
+                            selectedOption === option
+                              ? isCorrect === null
+                                ? "bg-purple-300"
+                                : isCorrect
+                                ? "bg-green-300"
+                                : "bg-red-300"
+                              : "bg-purple-100"
+                          } 
                           hover:bg-purple-200`}
                         >
                           <input
@@ -188,14 +260,19 @@ function GameDashboardComponent() {
                           <span className="text-lg">{option}</span>
                         </label>
                       ))}
-                    <Button type="submit" className="bg-purple-500 hover:bg-purple-600 mt-4 col-span-1 md:col-span-2">
+                    <Button
+                      type="submit"
+                      className="bg-purple-500 hover:bg-purple-600 mt-4 col-span-1 md:col-span-2"
+                    >
                       <Zap className="mr-2 h-4 w-4" />
                       Submit
                     </Button>
                   </form>
                 </>
               )}
-              <p className="mt-6 text-2xl font-bold text-purple-600">Your Score: {score}</p>
+              <p className="mt-6 text-2xl font-bold text-purple-600">
+                Your Score: {score}
+              </p>
             </CardContent>
           </Card>
 
@@ -220,7 +297,9 @@ function GameDashboardComponent() {
                       </Avatar>
                       <span className="font-medium">{player.name}</span>
                     </div>
-                    <span className="font-bold text-purple-600">{player.score}</span>
+                    <span className="font-bold text-purple-600">
+                      {player.score}
+                    </span>
                   </div>
                 ))}
               </ScrollArea>
@@ -239,9 +318,13 @@ function GameDashboardComponent() {
                 {chatMessages.map((msg, index) => (
                   <div
                     key={index}
-                    className={`mb-2 p-2 rounded-lg ${index % 2 === 0 ? "bg-gray-100" : "bg-purple-100"}`}
+                    className={`mb-2 p-2 rounded-lg ${
+                      index % 2 === 0 ? "bg-gray-100" : "bg-purple-100"
+                    }`}
                   >
-                    <span className="font-semibold text-purple-700">{msg.user}: </span>
+                    <span className="font-semibold text-purple-700">
+                      {msg.user}:{" "}
+                    </span>
                     <span>{msg.message}</span>
                   </div>
                 ))}
@@ -266,4 +349,4 @@ function GameDashboardComponent() {
   );
 }
 
-export default GameDashboardComponent; 
+export default GameDashboardComponent;
