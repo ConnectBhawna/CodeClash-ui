@@ -1,19 +1,18 @@
 'use client'
 import Link from "next/link";
-import { useState, useEffect } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { useState, useEffect } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-
 
 const avatars = [
   { id: 1, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 1" },
   { id: 2, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 2" },
   { id: 3, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 3" },
   { id: 4, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 4" },
-]
+];
 
 const techInterests = [
   { id: 'react', label: 'React' },
@@ -22,7 +21,7 @@ const techInterests = [
   { id: 'nodejs', label: 'Node.js' },
   { id: 'python', label: 'Python' },
   { id: 'tailwind', label: 'Tailwind CSS' },
-]
+];
 
 const logoUrls = [
   "https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/react/react.png",
@@ -31,13 +30,14 @@ const logoUrls = [
   "https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/nodejs/nodejs.png",
   "https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/python/python.png",
   "https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/tailwind/tailwind.png",
-]
+];
 
 export function AvatarSelectionTechLogos() {
-  const [selectedAvatar, setSelectedAvatar] = useState(null)
-  const [selectedInterests, setSelectedInterests] = useState([])
-  const [logos, setLogos] = useState([])
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [selectedInterests, setSelectedInterests] = useState([]);
+  const [logos, setLogos] = useState([]);
   const [hoveredAvatar, setHoveredAvatar] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const newLogos = logoUrls.map((_, index) => ({
@@ -46,47 +46,46 @@ export function AvatarSelectionTechLogos() {
       y: Math.random() * 100,
       speed: 0.3 + Math.random() * 0.5,
       size: 30 + Math.random() * 40,
-    }))
-    setLogos(newLogos)
+    }));
+    setLogos(newLogos);
 
     const moveLogos = () => {
       setLogos(prevLogos =>
         prevLogos.map(logo => ({
           ...logo,
           y: (logo.y + logo.speed) % 100,
-        })))
-    }
+        }))
+      );
+    };
 
-    const intervalId = setInterval(moveLogos, 50)
+    const intervalId = setInterval(moveLogos, 50);
     return () => clearInterval(intervalId);
-  }, [])
+  }, []);
 
   const handleAvatarSelect = (id) => {
-    setSelectedAvatar(id)
-  }
+    setSelectedAvatar(id);
+  };
 
   const handleInterestToggle = (id) => {
     setSelectedInterests(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
-  }
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   const handleStartQuiz = () => {
     if (selectedAvatar === null) {
-      console.log("Please select an avatar")
-      return
+      console.log("Please select an avatar");
+      return;
     }
     if (selectedInterests.length === 0) {
-      console.log("Please select at least one tech interest")
-      return
+      console.log("Please select at least one tech interest");
+      return;
     }
-    console.log(
-      `Quiz started! Avatar: ${selectedAvatar}, Interests: ${selectedInterests.join(', ')}`
-    )
-    // Here you would typically navigate to the quiz page or start the quiz
-  }
+    router.push(`/dashboard?interests=${selectedInterests.join(',')}`);
+  };
 
   return (
-    (<div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
       {logos.map(logo => (
         <img
           key={logo.id}
@@ -99,13 +98,13 @@ export function AvatarSelectionTechLogos() {
             transform: 'translate(-50%, -50%)',
             width: `${logo.size}px`,
             height: `${logo.size}px`,
-          }} />
+          }}
+        />
       ))}
       <div className="container mx-auto p-4 max-w-2xl relative z-10">
         <h1 className="text-3xl font-bold mb-6 text-center">Select Your Avatar and Tech Interests</h1>
         
-        <div
-          className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
+        <div className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">Choose Your Avatar</h2>
           <div className="grid grid-cols-4 gap-4">
             {avatars.map((avatar) => (
@@ -113,7 +112,8 @@ export function AvatarSelectionTechLogos() {
                 key={avatar.id}
                 className="relative"
                 onMouseEnter={() => setHoveredAvatar(avatar.id)}
-                onMouseLeave={() => setHoveredAvatar(null)}>
+                onMouseLeave={() => setHoveredAvatar(null)}
+              >
                 <Avatar
                   className={`cursor-pointer w-16 h-16 transition-all duration-200 ${
                     selectedAvatar === avatar.id 
@@ -122,7 +122,8 @@ export function AvatarSelectionTechLogos() {
                         ? 'bg-gray-700'
                         : 'bg-gray-600'
                   }`}
-                  onClick={() => handleAvatarSelect(avatar.id)}>
+                  onClick={() => handleAvatarSelect(avatar.id)}
+                >
                   <AvatarImage src={avatar.src} alt={avatar.alt} />
                   <AvatarFallback>{avatar.id}</AvatarFallback>
                 </Avatar>
@@ -132,11 +133,13 @@ export function AvatarSelectionTechLogos() {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
                       fill="currentColor"
-                      className="w-3 h-3 text-primary">
+                      className="w-3 h-3 text-primary"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                        clipRule="evenodd" />
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                 )}
@@ -145,8 +148,7 @@ export function AvatarSelectionTechLogos() {
           </div>
         </div>
 
-        <div
-          className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
+        <div className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">Select Your Tech Interests</h2>
           <div className="grid grid-cols-2 gap-4">
             {techInterests.map((interest) => (
@@ -155,7 +157,8 @@ export function AvatarSelectionTechLogos() {
                   id={interest.id}
                   checked={selectedInterests.includes(interest.id)}
                   onCheckedChange={() => handleInterestToggle(interest.id)}
-                  className="border-gray-400" />
+                  className="border-gray-400"
+                />
                 <Label htmlFor={interest.id} className="text-gray-200">{interest.label}</Label>
               </div>
             ))}
@@ -164,11 +167,13 @@ export function AvatarSelectionTechLogos() {
 
         <Button
           className="w-full bg-white hover:bg-gray-200 text-black font-semibold transition-colors duration-200"
-          onClick={()=>router.push("/dashboard")} >
+          onClick={handleStartQuiz}
+        >
           Start Quiz
         </Button>
       </div>
-    </div>)
+    </div>
   );
 }
+
 export default AvatarSelectionTechLogos;
