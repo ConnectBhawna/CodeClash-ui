@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useSocket } from "@/hooks/useSocket";
-import { GameDashboardComponent } from "./game-dashboard";
-import { LandingPage } from "./landing-page";
+import { GameDashboard } from "@/components/game-dashboard";
+import { LandingPage } from "@/components/landing-page";
 
 const avatars = [
   { id: 1, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 1" },
@@ -24,13 +24,12 @@ const techInterests = [
   { id: "tailwind", label: "Tailwind CSS" },
 ];
 
-export function GamePage({ session, setGameState }) {
+export function GamePage({ socket, setGameState }) {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [logos, setLogos] = useState([]);
   const [hoveredAvatar, setHoveredAvatar] = useState(null);
-  const socket = useSocket(session.id_token);
-  const [msg, setMsg] = useState([]);
+
   const [gameStateNew, setGameStateNew] = useState("waiting");
 
   useEffect(() => {
@@ -115,7 +114,11 @@ export function GamePage({ session, setGameState }) {
 
   const renderDashboardPage = () => {
     return (
-      <GameDashboardComponent socket={socket} setGameState={setGameState} />
+      <GameDashboard
+        socket={socket}
+        setGameState={setGameState}
+        gameState={gameStateNew}
+      />
     );
   };
 

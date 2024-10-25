@@ -1,84 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import dynamic from "next/dynamic";
-import Navbar from "@/components/navbar";
-import { LandingPage } from "@/components/landing-page";
+import { Navbar } from "@/components/navbar";
 import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { GameInfoComponent } from "@/components/game-info";
-import { GamePage } from "@/components/avatar-selection-tech-logos";
-import { GameDashboardComponent } from "@/components/game-dashboard";
-
-const ClientComponent = dynamic(() => import("./ClientComponent"), {
-  ssr: false,
-});
+import { GameDashboard } from "@/components/game-dashboard";
 
 export default function Home() {
   const { data: session } = useSession();
-  const [gameState, setGameState] = useState("Login");
-
-  console.log(gameState);
-
-  const renderGameContent = () => {
-    switch (gameState) {
-      case "Login":
-        return renderLoginPage();
-      case "game_info":
-        return renderGameInfoPage();
-      case "select":
-        return renderSelectPage();
-      case "waiting":
-        return renderSelectPage();
-      // case "InProgress":
-      //   return (
-      //     <>
-      //       {renderQuestion()}
-      //       <button onClick={nextQuestion}>Next Question</button>
-      //       {renderLeaderboard()}
-      //     </>
-      //   );
-      // case "Finished":
-      //   return (
-      //     <>
-      //       <h2>Game Over!</h2>
-      //       {renderLeaderboard()}
-      //     </>
-      //   );
-      default:
-        return renderLoginPage();
-    }
-  };
-
-  const renderLoginPage = () => {
-    return <LandingPage session={session} setGameState={setGameState} />;
-  };
-
-  const renderGameInfoPage = () => {
-    return <GameInfoComponent setGameState={setGameState} />;
-  };
-
-  const renderSelectPage = () => {
-    return <GamePage session={session} setGameState={setGameState} />;
-  };
-
-  const renderWaitingPage = () => {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div>
-          Waiting ...
-          <Button
-            className="w-full"
-            variant="outline"
-            onClick={() => signIn("google")}
-          >
-            Start Game
-          </Button>
-        </div>
-      </div>
-    );
-  };
 
   if (!session) {
     return (
@@ -107,8 +35,9 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-      {renderGameContent()}
+      <div className="flex flex-col items-center justify-center w-full">
+        <GameDashboard session={session} />
+      </div>
     </>
   );
 }

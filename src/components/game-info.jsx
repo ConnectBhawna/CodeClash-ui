@@ -150,7 +150,10 @@ export function GameInfoComponent({ setGameState }) {
           </CardFooter>
         </Card>
         <div className="mt-4 flex justify-center">
-          <Button className="w-full" onClick={() => setGameState("select")}>
+          <Button
+            className="w-full"
+            onClick={() => setGameState("join_or_create")}
+          >
             Start Quiz
           </Button>
         </div>
