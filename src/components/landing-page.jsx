@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useSocket } from "@/hooks/useSocket";
+import { Button } from 'pixel-retroui';
+import { Card } from 'pixel-retroui';
+
 
 const techLogos = [
   {
@@ -104,13 +106,13 @@ export function LandingPage({ session, setGameState }) {
           initialPosition={logo.position}
         />
       ))}
-      <div className="max-w-lg w-full bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden z-10">
+      <Card className="max-w-lg w-full bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden z-10">
         <div className="p-6 sm:p-8 flex flex-col items-center text-center">
-          <h2 className="text-xl text-gray-300 mb-2">Welcome To</h2>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Tech Quiz App
+          <h2 className="text-xl font-minecraft mb-4 text-gray-300 mb-2">Welcome To</h2>
+          <h1 className="text-4xl font-minecraft mb-4 sm:text-5xl font-bold text-white mb-4">
+            CodeClash
           </h1>
-          <p className="text-sm text-gray-400 mb-8">
+          <p className="text-sm font-minecraft text-gray-400 mb-8">
             Test your Tech knowledge, powered by AI!
           </p>
           {session && session.user && (
@@ -146,7 +148,7 @@ export function LandingPage({ session, setGameState }) {
             )}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
