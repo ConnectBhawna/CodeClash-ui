@@ -86,7 +86,7 @@ const gameInfo = [
   },
 ];
 
-export function GameInfoComponent({ setGameState }) {
+export function GameInfoComponent({ setProgressState }) {
   const [currentCard, setCurrentCard] = useState(0);
   const [floatingLogos, setFloatingLogos] = useState([]);
 
@@ -152,7 +152,7 @@ export function GameInfoComponent({ setGameState }) {
         <div className="mt-4 flex justify-center">
           <Button
             className="w-full"
-            onClick={() => setGameState("join_or_create")}
+            onClick={() => setProgressState("join_or_create")}
           >
             Start Quiz
           </Button>

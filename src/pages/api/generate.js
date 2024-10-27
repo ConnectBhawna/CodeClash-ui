@@ -8,10 +8,45 @@ const groq = new Groq({
 const generateAIQuizzes = async (topic, count) => {
   const response = await groq.chat.completions.create({
     messages: [
-      { role: "system", content: "You are a helpful assistant." },
+      {
+        role: "system",
+        content: `Here’s a more detailed prompt to generate multiple-choice quiz questions in the specified JSON format:
+
+            ---
+
+            Create a JSON array containing **five multiple-choice quiz questions** on various general knowledge topics such as science, history, geography, mathematics, and literature. Follow the **exact JSON structure** below for each question:
+
+
+            {
+              "text": "<question text>",
+              "options": ["<option1>", "<option2>", "<option3>", "<option4>"],
+              "correctAnswer": <index of correct option>
+            }
+
+            Each question should:
+            1. Be clearly worded, avoiding ambiguity.
+            2. Offer four options, of which only **one is correct**.
+            3. Represent the correct answer with a number from 0 to 3 in the correctAnswer field, denoting the index position in the options array.
+
+            ### Example Format
+            [
+              {
+                "text": "What is the capital of France?",
+                "options": ["Madrid", "Rome", "Paris", "Berlin"],
+                "correctAnswer": 2
+              },
+              {
+                "text": "Which planet is known as the Red Planet?",
+                "options": ["Earth", "Mars", "Jupiter", "Venus"],
+                "correctAnswer": 1
+              }
+            ]
+
+            Strictly return only the JSON array of questions, without additional commentary, explanations, or formatting outside the JSON. Make sure all entries are syntactically correct JSON.`,
+      },
       {
         role: "user",
-        content: `Generate ${count} multiple-choice quiz questions about ${topic} in JSON format. Each question should have the following structure: { "text": "<question text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correctAnswer": <index of correct option> }. Only provide the JSON array of questions.`,
+        content: `Generate ${count} multiple-choice quiz questions about ${topic} in JSON format.`,
       },
     ],
     model: "llama3-8b-8192",

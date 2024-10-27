@@ -4,9 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useSocket } from "@/hooks/useSocket";
-import { GameDashboard } from "@/components/game-dashboard";
-import { LandingPage } from "@/components/landing-page";
 
 const avatars = [
   { id: 1, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 1" },
@@ -24,13 +21,15 @@ const techInterests = [
   { id: "tailwind", label: "Tailwind CSS" },
 ];
 
-export function GamePage({ socket, setGameState }) {
+export function GamePage({
+  socket,
+  setQuizId,
+  setGameState,
+  setProgressState,
+}) {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [selectedInterests, setSelectedInterests] = useState([]);
-  const [logos, setLogos] = useState([]);
   const [hoveredAvatar, setHoveredAvatar] = useState(null);
-
-  const [gameStateNew, setGameStateNew] = useState("waiting");
 
   useEffect(() => {
     if (!socket) {
@@ -39,16 +38,11 @@ export function GamePage({ socket, setGameState }) {
     socket.onmessage = function (event) {
       const message = JSON.parse(event.data);
       console.log(message);
-      // if (message.gameState) {
-      //   // setGameState(message.gameState);
-      //   if (message.gameState[0]?.questions.length > 0) {
-      //     setQuestions(message.gameState[0].questions);
-      //   }
-      // }
-
-      setMsg((prev) => [...prev, message]);
+      if (message.type === "GAME_ADDED") {
+        setQuizId(message.quizId);
+        setGameState(message.gameState);
+      }
     };
-    console.log(msg);
     console.log("socket", socket);
 
     return () => {
@@ -66,60 +60,34 @@ export function GamePage({ socket, setGameState }) {
     );
   };
 
-  const createGame = () => {
+  const createGame = async () => {
     console.log("create", socket);
+
+    const questions = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        topic: selectedInterests.join(" and "),
+        count: 10,
+      }),
+    }).then((res) => res.json());
+
+    console.log("ques", questions);
+
     const create_game_message = {
       type: "CREATE_GAME",
       quizName: "QUIZZZ",
-      questions: [
-        {
-          id: "1",
-          text: "What is 2+2?",
-          options: ["3", "4", "5", "6"],
-          correctAnswer: 1,
-        },
-        {
-          id: "2",
-          text: "What is 5+5?",
-          options: ["10", "11", "12", "13"],
-          correctAnswer: 0,
-        },
-        {
-          id: "3",
-          text: "What is 10+10?",
-          options: ["24", "21", "20", "23"],
-          correctAnswer: 2,
-        },
-      ],
+      questions: questions.data,
     };
+
     if (socket) {
       socket.send(JSON.stringify(create_game_message));
+      setProgressState("waiting");
     } else {
       console.log("msg not sent", create_game_message);
     }
-  };
-
-  const handleStartQuiz = () => {
-    if (selectedAvatar === null) {
-      console.log("Please select an avatar");
-      return;
-    }
-    if (selectedInterests.length === 0) {
-      console.log("Please select at least one tech interest");
-      return;
-    }
-    createGame();
-    setGameStateNew("InProgress");
-  };
-
-  const renderDashboardPage = () => {
-    return (
-      <GameDashboard
-        socket={socket}
-        setGameState={setGameState}
-        gameState={gameStateNew}
-      />
-    );
   };
 
   const renderSelectPage = () => {
@@ -197,7 +165,7 @@ export function GamePage({ socket, setGameState }) {
 
           <Button
             className="w-full bg-white hover:bg-gray-200 text-black font-semibold transition-colors duration-200"
-            onClick={handleStartQuiz}
+            onClick={() => createGame()}
           >
             Start Quiz
           </Button>
@@ -206,27 +174,5 @@ export function GamePage({ socket, setGameState }) {
     );
   };
 
-  const renderLoginPage = () => {
-    return <LandingPage session={session} setGameState={setGameState} />;
-  };
-
-  const renderGameContent = () => {
-    switch (gameStateNew) {
-      case "waiting":
-        return renderSelectPage();
-      case "InProgress":
-        return renderDashboardPage();
-      case "Finished":
-        return (
-          <>
-            <h2>Game Over!</h2>
-            {renderLeaderboard()}
-          </>
-        );
-      default:
-        return renderLoginPage();
-    }
-  };
-
-  return <div>{renderGameContent()}</div>;
+  return <div>{renderSelectPage()}</div>;
 }

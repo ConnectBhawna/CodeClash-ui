@@ -29,8 +29,11 @@ const initialMessages = [
 export function GameDashboard({ session }) {
   const [progressState, setProgressState] = useState("login");
   const [gameState, setGameState] = useState(null);
+  const [quizId, setQuizId] = useState("");
+
   const socket = useSocket(session.id_token);
   const [msg, setMsg] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
 
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -45,68 +48,34 @@ export function GameDashboard({ session }) {
   const [leaderboardData, setLeaderboardData] = useState([]);
 
   console.log("progressState-dashboard", progressState);
+  console.log("questions", questions);
+  console.log("index", currentQuestionIndex);
 
   useEffect(() => {
     if (!socket) {
       return;
     }
+
     socket.onmessage = function (event) {
       const message = JSON.parse(event.data);
       console.log("message", message);
-      if (message.gameState) {
+
+      if (message.type === "USER_CONNECTED") {
+        setIsConnected(true);
+      }
+
+      if (message?.gameState) {
         setGameState(message.gameState);
-        if (message.gameState[0]?.questions.length > 0) {
-          setQuestions(message.gameState[0].questions);
-        }
+        console.log("gameState", gameState);
       }
 
       setMsg((prev) => [...prev, message]);
     };
-    console.log(msg);
-    console.log("socket", socket);
 
     return () => {
       socket.onmessage = null; // Clean up the previous handler
     };
   }, [socket]);
-
-  const handleGenerateQuizzes = async (interests) => {
-    try {
-      const quizzes = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          topic: interests.join(" and "),
-          count: 10,
-        }),
-      }).then((res) => res.json());
-
-      setQuestions(quizzes);
-      if (socket) {
-        console.log("quiz", quizzes);
-        socket.send(
-          JSON.stringify({
-            type: "CREATE_GAME",
-            quizName: "QUIZZZ",
-            questions: quizzes,
-          })
-        );
-      } else {
-        console.log("msg not sent", {
-          type: "CREATE_GAME",
-          quizName: "QUIZZZ",
-        });
-      }
-      setCurrentQuestionIndex(0);
-      setSelectedOption("");
-      setTimer(60);
-      setIsCorrect(null);
-    } catch (error) {
-      console.error("Error generating quizzes:", error);
-    }
-  };
 
   const handleSubmitAnswer = (e) => {
     e.preventDefault();
@@ -207,7 +176,14 @@ export function GameDashboard({ session }) {
   };
 
   const renderGameCreatePage = () => {
-    return <GamePage socket={socket} setProgressState={setProgressState} />;
+    return (
+      <GamePage
+        socket={socket}
+        setProgressState={setProgressState}
+        setGameState={setGameState}
+        setQuizId={setQuizId}
+      />
+    );
   };
 
   const renderGameJoinPage = () => {
@@ -219,6 +195,15 @@ export function GameDashboard({ session }) {
   };
 
   const renderWaitingPage = () => {
+    const start_game_message = {
+      type: "START_GAME",
+      quizName: "QUIZZZ",
+      questions: questions.data,
+    };
+    const startGame = () => {
+      socket.send();
+      setProgressState("game_start");
+    };
     return (
       <div className="h-full w-full  bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
         <div className="container mx-auto bg-white bg-opacity-90 rounded-xl shadow-2xl p-6">
@@ -243,7 +228,7 @@ export function GameDashboard({ session }) {
                 <p className="flex items-center justify-center gap-2 text-xl font-semibold mb-2 w-full h-full">
                   <Button
                     className="bg-blue-500 hover:bg-blue-600 text-white text-2xl h-fit w-fit font-bold py-2 px-4 rounded"
-                    onClick={() => setProgressState("game_start")}
+                    onClick={() => startGame()}
                   >
                     Start Game
                   </Button>
@@ -260,7 +245,7 @@ export function GameDashboard({ session }) {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px]">
-                  {gameState[0].leaderboard.map((player, index) => (
+                  {/* {gameState[0].leaderboard.map((player, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between mb-4 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
@@ -276,7 +261,7 @@ export function GameDashboard({ session }) {
                         {player.score}
                       </span>
                     </div>
-                  ))}
+                  ))} */}
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -415,7 +400,7 @@ export function GameDashboard({ session }) {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px]">
-                  {gameState[0].leaderboard.map((player, index) => (
+                  {/* {gameState[0].leaderboard.map((player, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between mb-4 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
@@ -431,7 +416,7 @@ export function GameDashboard({ session }) {
                         {player.score}
                       </span>
                     </div>
-                  ))}
+                  ))} */}
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -484,5 +469,12 @@ export function GameDashboard({ session }) {
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  return <>{renderGameContent()}</>;
+  return (
+    <>
+      {isConnected ? <div>Connected</div> : <div>Not connected</div>}
+      {quizId}
+      {JSON.stringify(gameState)}
+      {renderGameContent()}
+    </>
+  );
 }

@@ -79,7 +79,7 @@ function FloatingLogo({ svg, color, initialPosition }) {
   );
 }
 
-export function LandingPage({ session, setGameState }) {
+export function LandingPage({ session, setProgressState }) {
   const [floatingLogos, setFloatingLogos] = useState([]);
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export function LandingPage({ session, setGameState }) {
               <Button
                 className="w-full"
                 variant="default"
-                onClick={() => setGameState("game_info")}
+                onClick={() => setProgressState("game_info")}
               >
                 Get Started
               </Button>
