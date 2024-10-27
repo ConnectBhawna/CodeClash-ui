@@ -21,34 +21,10 @@ const techInterests = [
   { id: "tailwind", label: "Tailwind CSS" },
 ];
 
-export function GamePage({
-  socket,
-  setQuizId,
-  setGameState,
-  setProgressState,
-}) {
+export function GamePage({ socket, setProgressState }) {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [hoveredAvatar, setHoveredAvatar] = useState(null);
-
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
-    socket.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      if (message.type === "GAME_ADDED") {
-        setQuizId(message.quizId);
-        setGameState(message.gameState);
-      }
-    };
-    console.log("socket", socket);
-
-    return () => {
-      socket.onmessage = null; // Clean up the previous handler
-    };
-  }, [socket]);
 
   const handleAvatarSelect = (id) => {
     setSelectedAvatar(id);

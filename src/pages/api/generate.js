@@ -12,10 +12,7 @@ const generateAIQuizzes = async (topic, count) => {
         role: "system",
         content: `Here’s a more detailed prompt to generate multiple-choice quiz questions in the specified JSON format:
 
-            ---
-
-            Create a JSON array containing **five multiple-choice quiz questions** on various general knowledge topics such as science, history, geography, mathematics, and literature. Follow the **exact JSON structure** below for each question:
-
+            Create a JSON array containing multiple-choice quiz questions on topics as given by user. Follow the **exact JSON structure** below for each question:
 
             {
               "text": "<question text>",
@@ -46,22 +43,14 @@ const generateAIQuizzes = async (topic, count) => {
       },
       {
         role: "user",
-        content: `Generate ${count} multiple-choice quiz questions about ${topic} in JSON format.`,
+        content: `Generate ${count} multiple-choice quiz questions about ${topic} in STRICT JSON format.`,
       },
     ],
     model: "llama3-8b-8192",
   });
 
-  const text = response.choices[0]?.message?.content.trim();
-  console.log("Raw response text:", text);
-
-  if (!text) {
-    throw new Error("No response text received from Groq API");
-  }
-
-  const jsonStartIndex = text.indexOf("[");
-  const jsonEndIndex = text.lastIndexOf("]") + 1;
-  const jsonString = text.substring(jsonStartIndex, jsonEndIndex);
+  const jsonString = response.choices[0]?.message?.content.trim();
+  console.log("Raw response text:", jsonString);
 
   try {
     const quizzes = JSON.parse(jsonString);

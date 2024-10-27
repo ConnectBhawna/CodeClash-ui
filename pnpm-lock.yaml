@@ -71,6 +71,9 @@ importers:
       openai:
         specifier: ^4.68.1
         version: 4.68.4
+      pixel-retroui:
+        specifier: ^1.0.67
+        version: 1.0.67(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18
         version: 18.3.1
@@ -1805,6 +1808,12 @@ packages:
   pirates@4.0.6:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
+
+  pixel-retroui@1.0.67:
+    resolution: {integrity: sha512-QH3mObo+5kpYZHdym1ncCJLyp1U0fZwawtenVBHS8+ii1T3EJuCwy+y/NWnXytI4vwVUfgKZbJvFRWx8VzVp7w==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0
+      react-dom: ^17.0.0 || ^18.0.0
 
   possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
@@ -3633,6 +3642,7 @@ snapshots:
       next-auth: 4.24.10(next@14.2.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nextjs: 0.0.3
       openai: 4.68.4
+      pixel-retroui: 1.0.67(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tailwind-merge: 2.5.4
@@ -4133,6 +4143,12 @@ snapshots:
   pify@2.3.0: {}
 
   pirates@4.0.6: {}
+
+  pixel-retroui@1.0.67(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.0
 
   possible-typed-array-names@1.0.0: {}
 

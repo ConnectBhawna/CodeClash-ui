@@ -30,6 +30,7 @@ export function GameDashboard({ session }) {
   const [progressState, setProgressState] = useState("login");
   const [gameState, setGameState] = useState(null);
   const [quizId, setQuizId] = useState("");
+  const [currentGames, setCurrentGames] = useState([]);
 
   const socket = useSocket(session.id_token);
   const [msg, setMsg] = useState([]);
@@ -42,10 +43,9 @@ export function GameDashboard({ session }) {
   const [chatMessages, setChatMessages] = useState(initialMessages);
   const [chatInput, setChatInput] = useState("");
   const [timer, setTimer] = useState(60);
-  const [peopleJoined, setPeopleJoined] = useState(5);
+  const [peopleJoined, setPeopleJoined] = useState(0);
   const [questionNumber, setQuestionNumber] = useState(1);
   const [isCorrect, setIsCorrect] = useState(null);
-  const [leaderboardData, setLeaderboardData] = useState([]);
 
   console.log("progressState-dashboard", progressState);
   console.log("questions", questions);
@@ -66,7 +66,12 @@ export function GameDashboard({ session }) {
 
       if (message?.gameState) {
         setGameState(message.gameState);
+        setQuizId(message.gameState[0]?.quizId);
         console.log("gameState", gameState);
+      }
+
+      if (message.type === "LIST_GAMES") {
+        setCurrentGames(message.games);
       }
 
       setMsg((prev) => [...prev, message]);
@@ -176,20 +181,17 @@ export function GameDashboard({ session }) {
   };
 
   const renderGameCreatePage = () => {
-    return (
-      <GamePage
-        socket={socket}
-        setProgressState={setProgressState}
-        setGameState={setGameState}
-        setQuizId={setQuizId}
-      />
-    );
+    return <GamePage socket={socket} setProgressState={setProgressState} />;
   };
 
   const renderGameJoinPage = () => {
     return (
       <>
-        <RetroQuizList socket={socket} setProgressState={setProgressState} />
+        <RetroQuizList
+          socket={socket}
+          currentGames={currentGames}
+          setProgressState={setProgressState}
+        />
       </>
     );
   };
@@ -210,8 +212,10 @@ export function GameDashboard({ session }) {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold text-gray-800">AI Quiz Game</h1>
             <div className="flex items-center gap-2 text-xl text-gray-800">
+              <span>Quiz-id : {gameState[0]?.quizId}</span>
+              <span>STATUS : {gameState[0]?.status}</span>
               <Users className="h-6 w-6 text-blue-500" />
-              <span>{peopleJoined} people joined</span>
+              <span>{gameState[0]?.players.length} people joined</span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -245,7 +249,7 @@ export function GameDashboard({ session }) {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px]">
-                  {/* {gameState[0].leaderboard.map((player, index) => (
+                  {gameState[0]?.players.map((player, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between mb-4 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
@@ -258,10 +262,10 @@ export function GameDashboard({ session }) {
                         <span className="font-medium">{player.name}</span>
                       </div>
                       <span className="font-bold text-purple-600">
-                        {player.score}
+                        {player?.score ?? 0}
                       </span>
                     </div>
-                  ))} */}
+                  ))}
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -472,7 +476,6 @@ export function GameDashboard({ session }) {
   return (
     <>
       {isConnected ? <div>Connected</div> : <div>Not connected</div>}
-      {quizId}
       {JSON.stringify(gameState)}
       {renderGameContent()}
     </>
