@@ -49,10 +49,10 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
                   </span>
                 </div>
                 <Button
-                  className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 mt-4"
+                  className="w-full  hover:bg-blue-700  font-semibold transition-colors duration-200 mt-4"
                   onClick={() => joinGame(game.quizId)}
                 >
-                  <Zap className="w-4 h-4 mr-2" />
+                 
                   Join Game
                 </Button>
               </div>
