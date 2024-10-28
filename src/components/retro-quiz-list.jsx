@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, Button } from 'pixel-retroui';
+import { Card, Button } from "pixel-retroui";
 import { Users, Gamepad2, Zap } from "lucide-react";
 
 export function RetroQuizList({ socket, currentGames, setProgressState }) {
@@ -21,8 +21,10 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
   return (
     <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-2xl bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Select a Quiz to Join</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">
+          Select a Quiz to Join
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
           {currentGames?.map((game) => (
             <Card
               key={game.quizId}
@@ -32,7 +34,7 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
               onMouseEnter={() => setHoveredCard(game.quizId)}
               onMouseLeave={() => setHoveredCard(null)}
             >
-              <div className="p-4">
+              <div className="p-4 flex flex-col items-center gap-1">
                 <h2 className="text-2xl font-bold text-purple-300 retro-text">
                   {game.quizName}
                 </h2>
@@ -49,7 +51,7 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
                   </span>
                 </div>
                 <Button
-                  className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 mt-4"
+                  className="w-fit flex px-2 items-center bg-blue-500 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 mt-4"
                   onClick={() => joinGame(game.quizId)}
                 >
                   <Zap className="w-4 h-4 mr-2" />

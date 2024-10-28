@@ -10,13 +10,18 @@ import { Card } from "pixel-retroui";
 import { CardContent } from "@/components/ui/card";
 import { Gamepad2 } from "lucide-react";
 import {
-  Brain,
   Send,
   Trophy,
   MessageSquare,
-  Zap,
   Clock,
   Users,
+  Code,
+  Cpu,
+  Database,
+  Globe,
+  Laptop,
+  Server,
+  Smartphone,
 } from "lucide-react";
 import { useSocket } from "@/hooks/useSocket";
 import { LandingPage } from "./landing-page";
@@ -190,42 +195,96 @@ export function GameDashboard({ session }) {
     );
   };
 
+  const techLogos = [Code, Cpu, Database, Globe, Laptop, Server, Smartphone];
+
+  function FloatingLogo({ Icon, initialPosition }) {
+    const [position, setPosition] = useState(initialPosition);
+    const [rotation, setRotation] = useState(0);
+
+    useEffect(() => {
+      const moveIcon = () => {
+        setPosition((prev) => ({
+          x: (prev.x + (Math.random() - 0.5) * 10 + 100) % 100,
+          y: (prev.y + (Math.random() - 0.5) * 10 + 100) % 100,
+        }));
+        setRotation((prev) => (prev + Math.random() * 60 - 30) % 360);
+      };
+
+      const intervalId = setInterval(moveIcon, 3000);
+      return () => clearInterval(intervalId);
+    }, []);
+
+    return (
+      <Icon
+        className="w-16 h-16 text-gray-600 opacity-20 absolute"
+        style={{
+          left: `${position.x}%`,
+          top: `${position.y}%`,
+          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+          transition: "all 3s ease-in-out",
+        }}
+      />
+    );
+  }
+
   const renderGameInfoPage = () => {
     return <GameInfoComponent setProgressState={setProgressState} />;
   };
 
+  const [floatingLogos, setFloatingLogos] = useState([]);
+  useEffect(() => {
+    setFloatingLogos(
+      techLogos.map((Icon, index) => ({
+        Icon,
+        position: {
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+        },
+      }))
+    );
+  }, []);
+
   const renderJoinOrCreatePage = () => {
     return (
       <>
-        <Card className="w-full max-w-md overflow-hidden">
-          <CardContent className="p-6 text-black">
-            <div className="flex flex-col items-center justify-center space-y-6">
-              <h1 className="text-3xl font-bold text-center mb-2">
-                Join or Create a Game
-              </h1>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => setProgressState("create")}
-                >
-                  <Gamepad2 className="mr-2 h-5 w-5" />
-                  Create a Game
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => setProgressState("join")}
-                >
-                  <Users className="mr-2 h-5 w-5" />
-                  Join a Game
-                </Button>
+        <div className="relative min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4 overflow-hidden">
+          {floatingLogos.map((logo, index) => (
+            <FloatingLogo
+              key={index}
+              Icon={logo.Icon}
+              initialPosition={logo.position}
+            />
+          ))}
+          <Card className="w-full max-w-md overflow-hidden">
+            <CardContent className="p-6 text-black">
+              <div className="flex flex-col items-center justify-center space-y-6 w-full">
+                <h1 className="text-3xl font-bold text-center mb-2">
+                  Join or Create a Game
+                </h1>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full p-2">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="w-full flex items-center bg-blue-900 hover:bg-blue-700 mx-2 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => setProgressState("create")}
+                  >
+                    <Gamepad2 className="mr-2 h-5 w-5" />
+                    Create a Game
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="w-full flex items-center bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => setProgressState("join")}
+                  >
+                    <Users className="mr-2 h-5 w-5" />
+                    Join a Game
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </>
     );
   };
@@ -545,20 +604,24 @@ export function GameDashboard({ session }) {
 
   return (
     <>
-      {isConnected ? (
-        <div className="text-green-500 flex items-center">
-          {" "}
-          <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
-          Connected
+      <div className="w-full relative min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 ">
+        <div className="w-full flex items-center justify-center pt-1 overflow-hidden">
+          {isConnected ? (
+            <div className="text-green-500 flex items-center">
+              {" "}
+              <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
+              Connected
+            </div>
+          ) : (
+            <div className="text-red-500 flex items-center">
+              <div className="h-2 w-2 bg-red-500 rounded-full mr-2"></div>Not
+              connected
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="text-red-500 flex items-center">
-          <div className="h-2 w-2 bg-red-500 rounded-full mr-2"></div>Not
-          connected
-        </div>
-      )}
-      {/* {JSON.stringify(gameState)} */}
-      {renderGameContent()}
+        {/* {JSON.stringify(gameState)} */}
+        {renderGameContent()}
+      </div>
     </>
   );
 }

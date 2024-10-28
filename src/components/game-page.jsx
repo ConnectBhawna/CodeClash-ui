@@ -1,10 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-// import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Card , Button  } from 'pixel-retroui';
-
+import { Card, Button } from "pixel-retroui";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  Cpu,
+  Database,
+  Globe,
+  Laptop,
+  Server,
+  Smartphone,
+} from "lucide-react";
 
 const techInterests = [
   { id: "javascript", label: "Javascript" },
@@ -14,9 +21,54 @@ const techInterests = [
   { id: "python", label: "Python" },
   { id: "csharp", label: "C#" },
 ];
+const techLogos = [Code, Cpu, Database, Globe, Laptop, Server, Smartphone];
+
+function FloatingLogo({ Icon, initialPosition }) {
+  const [position, setPosition] = useState(initialPosition);
+  const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    const moveIcon = () => {
+      setPosition((prev) => ({
+        x: (prev.x + (Math.random() - 0.5) * 10 + 100) % 100,
+        y: (prev.y + (Math.random() - 0.5) * 10 + 100) % 100,
+      }));
+      setRotation((prev) => (prev + Math.random() * 60 - 30) % 360);
+    };
+
+    const intervalId = setInterval(moveIcon, 3000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return (
+    <Icon
+      className="w-16 h-16 text-gray-600 opacity-20 absolute"
+      style={{
+        left: `${position.x}%`,
+        top: `${position.y}%`,
+        transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+        transition: "all 3s ease-in-out",
+      }}
+    />
+  );
+}
 
 export function GamePage({ socket, setProgressState }) {
   const [selectedInterests, setSelectedInterests] = useState([]);
+  const [currentCard, setCurrentCard] = useState(0);
+  const [floatingLogos, setFloatingLogos] = useState([]);
+
+  useEffect(() => {
+    setFloatingLogos(
+      techLogos.map((Icon, index) => ({
+        Icon,
+        position: {
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+        },
+      }))
+    );
+  }, []);
 
   const handleInterestToggle = (id) => {
     setSelectedInterests((prev) =>
@@ -56,17 +108,26 @@ export function GamePage({ socket, setProgressState }) {
 
   const renderSelectPage = () => {
     return (
-      <div>
+      <div className="relative min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4 overflow-hidden">
+        {floatingLogos.map((logo, index) => (
+          <FloatingLogo
+            key={index}
+            Icon={logo.Icon}
+            initialPosition={logo.position}
+          />
+        ))}
         <div className="max-w-lg w-full bg-gray-800 bg-opacity">
           <Card className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
-    
             <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 text-white">
-  Select Your Tech Interests
-</h2>
+              <h2 className="text-xl font-semibold mb-4 text-white">
+                Select Your Tech Interests
+              </h2>
               <div className="grid grid-cols-2 gap-4">
                 {techInterests.map((interest) => (
-                  <div key={interest.id} className="flex items-center space-x-3">
+                  <div
+                    key={interest.id}
+                    className="flex items-center space-x-3"
+                  >
                     <input
                       type="checkbox"
                       id={interest.id}
@@ -79,9 +140,9 @@ export function GamePage({ socket, setProgressState }) {
                     </label>
                   </div>
                 ))}
-        </div>
+              </div>
             </div>
-    
+
             <Button
               className="w-full bg-white hover:bg-gray-200 text-black font-semibold transition-colors duration-200"
               onClick={() => createGame()}
