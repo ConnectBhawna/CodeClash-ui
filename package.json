@@ -29,6 +29,7 @@
     "hack_project": "file:",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.451.0",
+    "mongodb": "^6.10.0",
     "next": "14.2.15",
     "next-auth": "^4.24.8",
     "nextjs": "^0.0.3",

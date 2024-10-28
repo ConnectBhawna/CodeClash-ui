@@ -8,26 +8,23 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 const Card = dynamic(() => import('pixel-retroui').then(mod => mod.Card), { ssr: false });
 const Button = dynamic(() => import('pixel-retroui').then(mod => mod.Button), { ssr: false });
 
-const mockLeaderboardData = [
-  { id: 1, name: "Alice", score: 1200 },
-  { id: 2, name: "Bob", score: 1100 },
-  { id: 3, name: "Charlie", score: 1000 },
-  { id: 4, name: "David", score: 900 },
-  { id: 5, name: "Eve", score: 800 },
-];
-
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
-    setLeaderboard(mockLeaderboardData);
+    const fetchLeaderboard = async () => {
+      const response = await fetch('/api/leaderboard');
+      const data = await response.json();
+      setLeaderboard(data);
+    };
+
+    fetchLeaderboard();
   }, []);
 
-  const refreshLeaderboard = () => {
-    setLeaderboard(mockLeaderboardData.map(user => ({
-      ...user,
-      score: user.score + Math.floor(Math.random() * 100)
-    })));
+  const refreshLeaderboard = async () => {
+    const response = await fetch('/api/leaderboard');
+    const data = await response.json();
+    setLeaderboard(data);
   };
 
   const getTrophyIcon = (index) => {
@@ -51,9 +48,10 @@ export default function LeaderboardPage() {
         <h1 className="text-3xl font-bold mb-6 text-center text-white">Leaderboard</h1>
         <div className="mb-6">
           {leaderboard.map((user, index) => (
-            <div key={user.id} className="flex justify-between items-center p-2 border-b border-gray-700 text-white">
+            <div key={user.userId} className="flex justify-between items-center p-2 border-b border-gray-700 text-white">
               <div className="flex items-center space-x-2">
                 {getTrophyIcon(index)}
+                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
                 <span>{user.name}</span>
               </div>
               <span>{user.score}</span>
