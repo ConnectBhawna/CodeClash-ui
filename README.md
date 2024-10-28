@@ -62,3 +62,12 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 Note : For connection make sure to make .env.local file to add env variables.
 
+
+## 🧑‍💻 Examples
+![Screenshot from 2024-10-29 01-09-38](https://github.com/user-attachments/assets/413ae65b-fbf9-4353-895b-64304a630702)
+
+![Screenshot from 2024-10-29 01-10-08](https://github.com/user-attachments/assets/0758342f-7177-4f4a-a9e0-6eec596848e0)
+
+![Screenshot from 2024-10-29 01-09-38](https://github.com/user-attachments/assets/e4460ce9-6fbe-4d67-ae63-150e9a2b910e)
+
+![Screenshot from 2024-10-29 01-10-08](https://github.com/user-attachments/assets/3309a1b7-5e64-4553-849e-953bb126f6c1)
