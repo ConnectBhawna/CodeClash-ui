@@ -42,7 +42,11 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4 space-y-4">
+      <Card className="w-full max-w-2xl bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">Thanks for playing!</h1>
+        <p className="text-center text-white">We hope you enjoyed the game. Check out the leaderboard below to see how you did!</p>
+      </Card>
       <Card className="w-full max-w-2xl bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
         <h1 className="text-3xl font-bold mb-6 text-center text-white">Leaderboard</h1>
         <div className="mb-6">
