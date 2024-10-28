@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const WS_URL = "ws://localhost:8000";
+const WS_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL;
 
 export const useSocket = (token) => {
   const [socket, setSocket] = useState(null);

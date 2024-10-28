@@ -9,7 +9,6 @@ import { Button } from "pixel-retroui";
 import { Card } from "pixel-retroui";
 import { CardContent } from "@/components/ui/card";
 import { Gamepad2 } from "lucide-react";
-
 import {
   Brain,
   Send,
@@ -33,7 +32,7 @@ const initialMessages = [
 ];
 
 export function GameDashboard({ session }) {
-  const [progressState, setProgressState] = useState("game_start");
+  const [progressState, setProgressState] = useState("login");
   const [gameState, setGameState] = useState([]);
   const [quizId, setQuizId] = useState("");
   const [currentGames, setCurrentGames] = useState([]);
