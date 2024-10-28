@@ -39,7 +39,7 @@ const generateAIQuizzes = async (topic, count) => {
               }
             ]
 
-            Strictly return only the JSON array of questions, without additional commentary, explanations, or formatting outside the JSON. Make sure all entries are syntactically correct JSON.`,
+            Strictly return only the JSON array of questions, without additional commentary, explanations, or formatting outside the JSON. Make sure all entries are syntactically correct JSON. Don't Include any additional text or comments in the JSON.`,
       },
       {
         role: "user",
