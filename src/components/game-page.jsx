@@ -7,18 +7,16 @@ import { Card , Button  } from 'pixel-retroui';
 
 
 const techInterests = [
-  { id: "react", label: "React" },
-  { id: "vue", label: "Vue" },
-  { id: "angular", label: "Angular" },
-  { id: "nodejs", label: "Node.js" },
+  { id: "javascript", label: "Javascript" },
+  { id: "go", label: "Go" },
+  { id: "c", label: "C" },
+  { id: "rust", label: "Rust" },
   { id: "python", label: "Python" },
-  { id: "tailwind", label: "Tailwind CSS" },
+  { id: "csharp", label: "C#" },
 ];
 
 export function GamePage({ socket, setProgressState }) {
   const [selectedInterests, setSelectedInterests] = useState([]);
-  const [hoveredAvatar, setHoveredAvatar] = useState(null);
-
 
   const handleInterestToggle = (id) => {
     setSelectedInterests((prev) =>
