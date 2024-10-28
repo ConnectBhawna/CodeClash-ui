@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import {
+//  Card,
+//  CardContent,
+//  CardFooter,
+//  CardHeader,
+//  CardTitle,
+// } from "@/components/ui/card";
 import {
   ChevronLeft,
   ChevronRight,
@@ -20,6 +20,9 @@ import {
   Server,
   Smartphone,
 } from "lucide-react";
+
+import { Button } from 'pixel-retroui';
+import { Card } from 'pixel-retroui';
 
 const techLogos = [Code, Cpu, Database, Globe, Laptop, Server, Smartphone];
 
@@ -120,34 +123,34 @@ export function GameInfoComponent({ setProgressState }) {
         />
       ))}
       <div className="w-full max-w-md">
-        <Card className="bg-gray-800 bg-opacity-50 backdrop-blur-sm text-white border-none shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">
+        <Card className="max-w-lg w-full bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden z-10">
+          <div className="p-6 sm:p-8 flex flex-col items-center text-center">
+            <h2 className="text-2xl font-bold text-center text-white">
               {gameInfo[currentCard].title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center">{gameInfo[currentCard].content}</p>
-          </CardContent>
-          <CardFooter className="flex justify-between items-center">
-            <Button
-              variant="ghost"
-              onClick={prevCard}
-              disabled={currentCard === 0}
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-            </Button>
-            <span className="text-sm">
-              {currentCard + 1} / {gameInfo.length}
-            </span>
-            <Button
-              variant="ghost"
-              onClick={nextCard}
-              disabled={currentCard === gameInfo.length - 1}
-            >
-              Next <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </CardFooter>
+            </h2>
+            <p className="text-center text-white mt-4">
+              {gameInfo[currentCard].content}
+            </p>
+            <div className="flex justify-between items-center mt-4 w-full">
+              <Button
+                variant="ghost"
+                onClick={prevCard}
+                disabled={currentCard === 0}
+              >
+                <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+              </Button>
+              <span className="text-sm text-white">
+                {currentCard + 1} / {gameInfo.length}
+              </span>
+              <Button
+                variant="ghost"
+                onClick={nextCard}
+                disabled={currentCard === gameInfo.length - 1}
+              >
+                Next <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </Card>
         <div className="mt-4 flex justify-center">
           <Button
