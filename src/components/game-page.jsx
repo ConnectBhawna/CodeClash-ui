@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Card , Button  } from 'pixel-retroui';
 
 const avatars = [
   { id: 1, src: "/placeholder.svg?height=64&width=64", alt: "Avatar 1" },
@@ -68,83 +69,81 @@ export function GamePage({ socket, setProgressState }) {
 
   const renderSelectPage = () => {
     return (
-      <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
-        <div className="container mx-auto p-4 max-w-2xl relative z-10">
-          <h1 className="text-3xl font-bold mb-6 text-center">
-            Select Your Avatar and Tech Interests
-          </h1>
-
-          <div className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
-            <h2 className="text-xl font-semibold mb-4">Choose Your Avatar</h2>
-            <div className="grid grid-cols-4 gap-4">
-              {avatars.map((avatar) => (
-                <div
-                  key={avatar.id}
-                  className="relative"
-                  onMouseEnter={() => setHoveredAvatar(avatar.id)}
-                  onMouseLeave={() => setHoveredAvatar(null)}
-                >
-                  <Avatar
-                    className={`cursor-pointer w-16 h-16 transition-all duration-200 ${
+      <div>
+        <div className="max-w-lg w-full bg-gray-800 bg-opacity">
+          <Card className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
+            <h1 className="text-3xl font-bold mb-6 text-center">
+              Select Your Avatar and Tech Interests
+            </h1>
+    
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Choose Your Avatar</h2>
+              <div className="grid grid-cols-4 gap-4">
+                {avatars.map((avatar) => (
+                  <div
+                    key={avatar.id}
+                    className={`relative cursor-pointer w-16 h-16 transition-all duration-200 ${
                       selectedAvatar === avatar.id
                         ? "bg-primary text-white"
                         : hoveredAvatar === avatar.id
                         ? "bg-gray-700"
                         : "bg-gray-600"
                     }`}
+                    onMouseEnter={() => setHoveredAvatar(avatar.id)}
+                    onMouseLeave={() => setHoveredAvatar(null)}
                     onClick={() => handleAvatarSelect(avatar.id)}
                   >
-                    <AvatarImage src={avatar.src} alt={avatar.alt} />
-                    <AvatarFallback>{avatar.id}</AvatarFallback>
-                  </Avatar>
-                  {selectedAvatar === avatar.id && (
-                    <div className="absolute -top-1 -right-1 bg-white rounded-full p-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-3 h-3 text-primary"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    <img src={avatar.src} alt={avatar.alt} className="w-full h-full object-cover rounded-full" />
+                    {selectedAvatar === avatar.id && (
+                      <div className="absolute -top-1 -right-1 bg-white rounded-full p-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-3 h-3 text-primary"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
-            <h2 className="text-xl font-semibold mb-4">
-              Select Your Tech Interests
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {techInterests.map((interest) => (
-                <div key={interest.id} className="flex items-center space-x-3">
-                  <Checkbox
-                    id={interest.id}
-                    checked={selectedInterests.includes(interest.id)}
-                    onCheckedChange={() => handleInterestToggle(interest.id)}
-                    className="border-gray-400"
-                  />
-                  <Label htmlFor={interest.id} className="text-gray-200">
-                    {interest.label}
-                  </Label>
-                </div>
-              ))}
+    
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">
+                Select Your Tech Interests
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                {techInterests.map((interest) => (
+                  <div key={interest.id} className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id={interest.id}
+                      checked={selectedInterests.includes(interest.id)}
+                      onChange={() => handleInterestToggle(interest.id)}
+                      className="border-gray-400"
+                    />
+                    <label htmlFor={interest.id} className="text-gray-200">
+                      {interest.label}
+                    </label>
+                  </div>
+                ))}
+        </div>
             </div>
-          </div>
-
-          <Button
-            className="w-full bg-white hover:bg-gray-200 text-black font-semibold transition-colors duration-200"
-            onClick={() => createGame()}
-          >
-            Start Quiz
-          </Button>
+    
+            <Button
+              className="w-full bg-white hover:bg-gray-200 text-black font-semibold transition-colors duration-200"
+              onClick={() => createGame()}
+            >
+              Start Quiz
+            </Button>
+          </Card>
         </div>
       </div>
     );

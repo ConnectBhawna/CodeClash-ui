@@ -106,7 +106,7 @@ export function LandingPage({ session, setProgressState }) {
           initialPosition={logo.position}
         />
       ))}
-      <Card className="max-w-lg w-full bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden z-10">
+      <Card className="max-w-lg w-full bg-gray-800 bg-opacity">
         <div className="p-6 sm:p-8 flex flex-col items-center text-center">
           <h2 className="text-xl font-minecraft mb-4 text-gray-300 mb-2">Welcome To</h2>
           <h1 className="text-4xl font-minecraft mb-4 sm:text-5xl font-bold text-white mb-4">

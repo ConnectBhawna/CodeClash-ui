@@ -1,11 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import TimerComponent from "./persistent-timer";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "pixel-retroui";
+import { Card } from "pixel-retroui";
+import { CardContent } from "@/components/ui/card";
+import { Gamepad2 } from "lucide-react";
+
 import {
   Brain,
   Send,
@@ -22,9 +26,9 @@ import { GamePage } from "./game-page";
 import { RetroQuizList } from "./retro-quiz-list";
 
 const initialMessages = [
-  { user: "Alice", message: "Good luck everyone!" },
-  { user: "Bob", message: "This is fun!" },
-  { user: "Charlie", message: "I'm ready the next question!" },
+  { user: "Bhawna Chauhan", message: "Good luck everyone!" },
+  { user: "Rohit", message: "This is fun!" },
+  { user: "Harsh Kumar", message: "I'm ready the next question!" },
 ];
 
 export function GameDashboard({ session }) {
@@ -188,27 +192,35 @@ export function GameDashboard({ session }) {
   const renderJoinOrCreatePage = () => {
     return (
       <>
-        <div className="flex flex-col items-center justify-center">
-          <h1>Join or Create a Game</h1>
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            onClick={() => setProgressState("create")}
-          >
-            Create a Game
-          </button>
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            onClick={() => setProgressState("join")}
-          >
-            Join a Game
-          </button>
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            onClick={() => setProgressState("join")}
-          >
-            Join a Game
-          </button>
-        </div>
+        <Card className="w-full max-w-md overflow-hidden">
+          <CardContent className="p-6 text-black">
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <h1 className="text-3xl font-bold text-center mb-2">
+                Join or Create a Game
+              </h1>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => setProgressState("create")}
+                >
+                  <Gamepad2 className="mr-2 h-5 w-5" />
+                  Create a Game
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => setProgressState("join")}
+                >
+                  <Users className="mr-2 h-5 w-5" />
+                  Join a Game
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </>
     );
   };
@@ -251,10 +263,12 @@ export function GameDashboard({ session }) {
       setProgressState("join_or_create");
     };
     return (
-      <div className="h-full w-full  bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
+      <div className="h-full w-full  bg-gradient-to-br from-blue-900 via-black to-blue-900 p-8">
         <div className="container mx-auto bg-white bg-opacity-90 rounded-xl shadow-2xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-800">AI Quiz Game</h1>
+            <h1 className="text-4xl font-minecraft mb-4 font-bold text-gray-800">
+              CodeClash
+            </h1>
             <div className="flex items-center gap-2 text-xl text-gray-800">
               <span>
                 Quiz-id : {gameState.length > 0 ? gameState[0]?.quizId : ""}
@@ -286,7 +300,7 @@ export function GameDashboard({ session }) {
               <CardContent className="flex items-center justify-center h-full">
                 <p className="flex items-center justify-center gap-2 text-xl font-semibold mb-2 w-full h-full">
                   <Button
-                    className="bg-blue-500 hover:bg-blue-600 text-white text-2xl h-fit w-fit font-bold py-2 px-4 rounded"
+                    className="bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     onClick={() => startGame()}
                   >
                     Start Game
