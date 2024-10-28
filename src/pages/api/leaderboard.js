@@ -1,11 +1,11 @@
-import clientPromise from '../../lib/mongodb';
+import clientPromise from "../../lib/mongo";
 
 export default async function handler(req, res) {
   const client = await clientPromise;
-  const db = client.db('multiplayer-game');
+  const db = client.db("multiplayer-game");
 
   const leaderboard = await db
-    .collection('leaderboard')
+    .collection("leaderboard")
     .find({})
     .sort({ score: -1 })
     .toArray();
