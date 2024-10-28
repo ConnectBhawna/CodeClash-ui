@@ -19,7 +19,7 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
     if (socket) {
       socket.send(JSON.stringify({ type: "LIST_GAMES" }));
     }
-  }, [currentGames]);
+  }, []);
 
   const joinGame = (id) => {
     socket.send(JSON.stringify({ type: "JOIN_GAME", quizId: id }));
@@ -50,7 +50,9 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
               <CardContent>
                 <div className="flex items-center mb-2">
                   <Gamepad2 className="w-5 h-5 mr-2 text-green-400" />
-                  <span className="text-green-400">Admin: {game.admin}</span>
+                  <span className="text-green-400">
+                    Admin: {game.admin.name}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <Users className="w-5 h-5 mr-2 text-blue-400" />

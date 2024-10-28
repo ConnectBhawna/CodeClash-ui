@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import TimerComponent from "./persistent-timer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Brain,
@@ -28,28 +29,39 @@ const initialMessages = [
 
 export function GameDashboard({ session }) {
   const [progressState, setProgressState] = useState("login");
-  const [gameState, setGameState] = useState(null);
+  const [gameState, setGameState] = useState([]);
   const [quizId, setQuizId] = useState("");
   const [currentGames, setCurrentGames] = useState([]);
+  const [liveLeaderboard, setLiveLeaderboard] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState({});
+  const [isRunning, setIsRunning] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
 
   const socket = useSocket(session.id_token);
   const [msg, setMsg] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
-  const [score, setScore] = useState(0);
   const [chatMessages, setChatMessages] = useState(initialMessages);
   const [chatInput, setChatInput] = useState("");
-  const [timer, setTimer] = useState(60);
-  const [peopleJoined, setPeopleJoined] = useState(0);
   const [questionNumber, setQuestionNumber] = useState(1);
   const [isCorrect, setIsCorrect] = useState(null);
 
   console.log("progressState-dashboard", progressState);
-  console.log("questions", questions);
-  console.log("index", currentQuestionIndex);
+  console.log("gameState-dashboard", gameState);
+  console.log("gameState-ques", currentQuestion);
+
+  const handleStartTimer = () => {
+    setIsRunning(true);
+    localStorage.setItem("timerIsRunning", "true");
+  };
+
+  const handleResetTimer = () => {
+    setTimeLeft(20);
+    setIsRunning(false);
+    localStorage.setItem("timerTime", "20");
+    localStorage.setItem("timerIsRunning", "false");
+  };
 
   useEffect(() => {
     if (!socket) {
@@ -64,10 +76,23 @@ export function GameDashboard({ session }) {
         setIsConnected(true);
       }
 
-      if (message?.gameState) {
+      if (message.type === "GAME_ADDED" || message.type === "USER_JOINED") {
         setGameState(message.gameState);
         setQuizId(message.gameState[0]?.quizId);
         console.log("gameState", gameState);
+      }
+
+      if (message.type === "GAME_STARTED") {
+        setProgressState("game_start");
+      }
+
+      if (
+        message.type === "GAME_STARTED" ||
+        message.type === "LEADERBOARD_UPDATE"
+      ) {
+        setGameState(message.gameState);
+        setCurrentQuestion(message.gameState[0].currentQuestion);
+        setLiveLeaderboard(message.leaderboard);
       }
 
       if (message.type === "LIST_GAMES") {
@@ -82,26 +107,11 @@ export function GameDashboard({ session }) {
     };
   }, [socket]);
 
-  const handleSubmitAnswer = (e) => {
-    e.preventDefault();
-    const correctOption =
-      questions[currentQuestionIndex].options[
-        questions[currentQuestionIndex].correctAnswer
-      ];
-    if (selectedOption === correctOption) {
-      setScore((prevScore) => prevScore + 100);
-      setIsCorrect(true);
-    } else {
-      setIsCorrect(false);
+  useEffect(() => {
+    if (quizId && gameState.length > 0) {
+      setLiveLeaderboard(gameState[0]?.leaderboard);
     }
-    setTimeout(() => {
-      setSelectedOption("");
-      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-      setQuestionNumber((prevNumber) => prevNumber + 1);
-      setTimer(60);
-      setIsCorrect(null);
-    }, 2000); // Wait for 2 seconds before moving to the next question
-  };
+  }, [quizId]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -109,6 +119,29 @@ export function GameDashboard({ session }) {
       setChatMessages([...chatMessages, { user: "You", message: chatInput }]);
       setChatInput("");
     }
+  };
+
+  // run this function when the timer ends
+  const nextQuestion = () => {
+    socket.send(
+      JSON.stringify({
+        type: "ANSWER_QUESTION",
+        quizId: quizId,
+        timeTaken: timeLeft,
+        answer: currentQuestion.options.indexOf(selectedOption),
+      })
+    );
+
+    socket.send(
+      JSON.stringify({
+        type: "NEXT_QUESTION",
+        quizId: quizId,
+        timeTaken: timeLeft,
+        answer: currentQuestion.options.indexOf(selectedOption),
+      })
+    );
+    setSelectedOption(null);
+    handleResetTimer();
   };
 
   const renderGameContent = () => {
@@ -197,14 +230,25 @@ export function GameDashboard({ session }) {
   };
 
   const renderWaitingPage = () => {
-    const start_game_message = {
-      type: "START_GAME",
-      quizName: "QUIZZZ",
-      questions: questions.data,
-    };
     const startGame = () => {
-      socket.send();
+      socket.send(
+        JSON.stringify({
+          type: "START_GAME",
+          quizId: quizId,
+        })
+      );
       setProgressState("game_start");
+      handleStartTimer();
+    };
+
+    const leaveGame = () => {
+      socket.send(
+        JSON.stringify({
+          type: "EXIT_GAME",
+          quizId: quizId,
+        })
+      );
+      setProgressState("join_or_create");
     };
     return (
       <div className="h-full w-full  bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
@@ -212,10 +256,21 @@ export function GameDashboard({ session }) {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold text-gray-800">AI Quiz Game</h1>
             <div className="flex items-center gap-2 text-xl text-gray-800">
-              <span>Quiz-id : {gameState[0]?.quizId}</span>
-              <span>STATUS : {gameState[0]?.status}</span>
+              <span>
+                Quiz-id : {gameState.length > 0 ? gameState[0]?.quizId : ""}
+              </span>
+              <span>
+                STATUS : {gameState.length > 0 ? gameState[0]?.status : ""}
+              </span>
               <Users className="h-6 w-6 text-blue-500" />
               <span>{gameState[0]?.players.length} people joined</span>
+
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white text-sm h-fit w-fit font-bold py-2 px-4 rounded"
+                onClick={() => leaveGame()}
+              >
+                Leave Game
+              </Button>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -323,8 +378,21 @@ export function GameDashboard({ session }) {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold text-gray-800">AI Quiz Game</h1>
             <div className="flex items-center gap-2 text-xl text-gray-800">
+              <span>
+                Quiz-id : {gameState.length > 0 ? gameState[0]?.quizId : ""}
+              </span>
+              <span>
+                STATUS : {gameState.length > 0 ? gameState[0]?.status : ""}
+              </span>
               <Users className="h-6 w-6 text-blue-500" />
-              <span>{peopleJoined} people joined</span>
+              <span>{gameState[0]?.players.length} people joined</span>
+
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white text-sm h-fit w-fit font-bold py-2 px-4 rounded"
+                onClick={() => leaveGame()}
+              >
+                Leave Game
+              </Button>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -333,7 +401,13 @@ export function GameDashboard({ session }) {
                 <CardTitle className="flex items-center gap-2 text-2xl">
                   <Clock className="h-6 w-6 text-red-500" />
                   <span className="text-xl font-bold text-red-500">
-                    Time Left: {timer}s
+                    Time Left:{" "}
+                    <TimerComponent
+                      setTimeLeft={setTimeLeft}
+                      timeLeft={timeLeft}
+                      isRunning={isRunning}
+                      setIsRunning={setIsRunning}
+                    />
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -346,15 +420,12 @@ export function GameDashboard({ session }) {
                     <p className="text-xl font-semibold mb-6 animate-pulse">
                       {currentQuestion.text}
                     </p>
-                    <form
-                      onSubmit={handleSubmitAnswer}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                    >
-                      {currentQuestion.options &&
-                        currentQuestion.options.map((option, index) => (
-                          <label
-                            key={index}
-                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors 
+
+                    {currentQuestion.options &&
+                      currentQuestion.options.map((option, index) => (
+                        <label
+                          key={index}
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors 
                           ${
                             selectedOption === option
                               ? isCorrect === null
@@ -365,33 +436,20 @@ export function GameDashboard({ session }) {
                               : "bg-purple-100"
                           } 
                           hover:bg-purple-200`}
-                          >
-                            <input
-                              type="radio"
-                              name="answer"
-                              value={option}
-                              checked={selectedOption === option}
-                              onChange={(e) =>
-                                setSelectedOption(e.target.value)
-                              }
-                              className="form-radio text-purple-500 hidden"
-                            />
-                            <span className="text-lg">{option}</span>
-                          </label>
-                        ))}
-                      <Button
-                        type="submit"
-                        className="bg-purple-500 hover:bg-purple-600 mt-4 col-span-1 md:col-span-2"
-                      >
-                        <Zap className="mr-2 h-4 w-4" />
-                        Submit
-                      </Button>
-                    </form>
+                        >
+                          <input
+                            type="radio"
+                            name="answer"
+                            value={option}
+                            checked={selectedOption === option}
+                            onChange={(e) => setSelectedOption(e.target.value)}
+                            className="form-radio text-purple-500 hidden"
+                          />
+                          <span className="text-lg">{option}</span>
+                        </label>
+                      ))}
                   </>
                 )}
-                <p className="mt-6 text-2xl font-bold text-purple-600">
-                  Your Score: {score}
-                </p>
               </CardContent>
             </Card>
 
@@ -404,7 +462,7 @@ export function GameDashboard({ session }) {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px]">
-                  {/* {gameState[0].leaderboard.map((player, index) => (
+                  {liveLeaderboard?.map((player, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between mb-4 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
@@ -420,7 +478,7 @@ export function GameDashboard({ session }) {
                         {player.score}
                       </span>
                     </div>
-                  ))} */}
+                  ))}
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -471,11 +529,20 @@ export function GameDashboard({ session }) {
     );
   };
 
-  const currentQuestion = questions[currentQuestionIndex];
-
   return (
     <>
-      {isConnected ? <div>Connected</div> : <div>Not connected</div>}
+      {isConnected ? (
+        <div className="text-green-500 flex items-center">
+          {" "}
+          <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
+          Connected
+        </div>
+      ) : (
+        <div className="text-red-500 flex items-center">
+          <div className="h-2 w-2 bg-red-500 rounded-full mr-2"></div>Not
+          connected
+        </div>
+      )}
       {JSON.stringify(gameState)}
       {renderGameContent()}
     </>

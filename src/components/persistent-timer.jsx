@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
-export default function Component() {
-  const [timeLeft, setTimeLeft] = useState(20);
-  const [isRunning, setIsRunning] = useState(false);
-
+export default function Component({
+  isRunning,
+  timeLeft,
+  setTimeLeft,
+  setIsRunning,
+}) {
   useEffect(() => {
     // Retrieve the saved time from localStorage
     const savedTime = localStorage.getItem("timerTime");
@@ -44,35 +44,5 @@ export default function Component() {
     };
   }, [isRunning, timeLeft]);
 
-  const handleStart = () => {
-    setIsRunning(true);
-    localStorage.setItem("timerIsRunning", "true");
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-    localStorage.setItem("timerIsRunning", "false");
-  };
-
-  const handleReset = () => {
-    setTimeLeft(20);
-    setIsRunning(false);
-    localStorage.setItem("timerTime", "20");
-    localStorage.setItem("timerIsRunning", "false");
-  };
-
-  return (
-    <Card className="w-full max-w-md mx-auto mt-10">
-      <CardContent className="flex flex-col items-center justify-center p-6">
-        <h2 className="text-4xl font-bold mb-4">{timeLeft} seconds</h2>
-        <div className="flex space-x-4">
-          {!isRunning && timeLeft > 0 && (
-            <Button onClick={handleStart}>Start</Button>
-          )}
-          {isRunning && <Button onClick={handlePause}>Pause</Button>}
-          <Button onClick={handleReset}>Reset</Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  return <>{timeLeft}</>;
 }
