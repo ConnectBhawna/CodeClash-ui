@@ -1,16 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, Button } from 'pixel-retroui';
 import { Users, Gamepad2, Zap } from "lucide-react";
-import { useEffect } from "react";
 
 export function RetroQuizList({ socket, currentGames, setProgressState }) {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -19,7 +11,7 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
     if (socket) {
       socket.send(JSON.stringify({ type: "LIST_GAMES" }));
     }
-  }, []);
+  }, [socket]);
 
   const joinGame = (id) => {
     socket.send(JSON.stringify({ type: "JOIN_GAME", quizId: id }));
@@ -27,11 +19,9 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-purple-700 via-pink-600 to-red-500 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold text-center text-yellow-300 mb-8 retro-shadow">
-          Retro Quiz Arena
-        </h1>
+    <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-2xl bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">Select a Quiz to Join</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentGames?.map((game) => (
             <Card
@@ -42,12 +32,10 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
               onMouseEnter={() => setHoveredCard(game.quizId)}
               onMouseLeave={() => setHoveredCard(null)}
             >
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-purple-300 retro-text">
+              <div className="p-4">
+                <h2 className="text-2xl font-bold text-purple-300 retro-text">
                   {game.quizName}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h2>
                 <div className="flex items-center mb-2">
                   <Gamepad2 className="w-5 h-5 mr-2 text-green-400" />
                   <span className="text-green-400">
@@ -60,20 +48,18 @@ export function RetroQuizList({ socket, currentGames, setProgressState }) {
                     Players: {game.players?.length}
                   </span>
                 </div>
-              </CardContent>
-              <CardFooter>
                 <Button
-                  className="w-full retro-button"
+                  className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 mt-4"
                   onClick={() => joinGame(game.quizId)}
                 >
                   <Zap className="w-4 h-4 mr-2" />
                   Join Game
                 </Button>
-              </CardFooter>
+              </div>
             </Card>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

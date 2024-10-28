@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { useRouter } from 'next/router';
 
 const Card = dynamic(() => import('pixel-retroui').then(mod => mod.Card), { ssr: false });
 const Button = dynamic(() => import('pixel-retroui').then(mod => mod.Button), { ssr: false });
 
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -38,6 +40,10 @@ export default function LeaderboardPage() {
     return null;
   };
 
+  const goToHome = () => {
+    router.push('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4 space-y-4">
       <Card className="w-full max-w-2xl bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
@@ -63,6 +69,12 @@ export default function LeaderboardPage() {
           onClick={refreshLeaderboard}
         >
           Refresh Leaderboard
+        </Button>
+        <Button
+          className="w-full bg-white hover:bg-gray-200 text-black font-semibold transition-colors duration-200"
+          onClick={goToHome}
+        >
+          Go Back to Home
         </Button>
       </Card>
     </div>
