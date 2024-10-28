@@ -19,6 +19,8 @@ From a business perspective, *CodeClash* also scales seamlessly across regions, 
 ## 🛠️ How we built it
 ![Screenshot from 2024-10-28 21-41-58](https://github.com/user-attachments/assets/e96ebc57-98df-4514-a617-bef4a71b3fce)
 
+Backend Codebase : https://github.com/rohitranjan-2702/codeclash-game-backend
+
 - CodeClash is built on a modern, scalable architecture that combines the power of NodeJS and Next.js to deliver a seamless, real-time competitive programming experience.
 - At the frontend, we leveraged Next.js 14's advanced features to create a lightning-fast, responsive interface. The app utilizes Next.js's App Router for efficient client-side navigation and Server Components for optimal performance. This ensures that players experience minimal latency during competitive matches, while the progressive enhancement keeps the app responsive even under varying network conditions.
 - The backend infrastructure is powered by Node.js, where we implemented native WebSockets for real-time bidirectional communication. This lightweight approach enables us to maintain persistent connections between the server and clients, facilitating instant updates for match states, player actions, and score changes. The WebSocket implementation provides the low-latency communication essential for a competitive programming environment while being more resource-efficient than traditional HTTP polling.
@@ -63,11 +65,35 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 Note : For connection make sure to make .env.local file to add env variables.
 
 
-## 🧑‍💻 Examples
-![Screenshot from 2024-10-29 01-09-38](https://github.com/user-attachments/assets/413ae65b-fbf9-4353-895b-64304a630702)
+## 🧑‍💻 Flow of the Project
+As our project have two seperate repo's so you might face issues while installing . So we added the flow here as well.
 
-![Screenshot from 2024-10-29 01-10-08](https://github.com/user-attachments/assets/0758342f-7177-4f4a-a9e0-6eec596848e0)
+1. First we login using Google Account than it will show the below Landing Page
+   ![Landing_page](https://github.com/user-attachments/assets/2a58babd-232c-4c92-8ef8-615b9f71dced)
 
-![Screenshot from 2024-10-29 01-09-38](https://github.com/user-attachments/assets/e4460ce9-6fbe-4d67-ae63-150e9a2b910e)
+2. This will onboard to our About page that contains the instruction and other important details about the project
+   ![about](https://github.com/user-attachments/assets/e6bf2065-ebd2-4713-a9f6-4c62bbedd66b)
 
-![Screenshot from 2024-10-29 01-10-08](https://github.com/user-attachments/assets/3309a1b7-5e64-4553-849e-953bb126f6c1)
+3. After the about page we need to select either we want to join the game or create the game
+   ![Create_or_join](https://github.com/user-attachments/assets/f2dc6e39-fa32-4b48-b567-74e7f8eb2a6e)
+
+4. If we are looking to create the game based on our choose we can do that , on the basis on our choice Quiz will be created by the AI
+   ![If_creating_game](https://github.com/user-attachments/assets/bad5ba79-0f94-43b1-9152-54790a332123)
+
+5. If we are looking to JOIN the game, You will see the below screen
+   ![if_joining_game](https://github.com/user-attachments/assets/653d8ad4-8215-47c7-85dd-0e35130e6955)
+
+6. Either you joined and created the game, you will wait for others to play with you. At that time the below screen you will be able to see.
+   ![waiting_screen](https://github.com/user-attachments/assets/a2276c63-913f-4d89-ab94-119e593fea50)
+
+7. Once some folks join the game will start and based on how fast you answer the system will give you marks. Also here all the things are realtime including chat and leaderboard . So marks will be updated in realtime and how cool is that you can chat with your friends in realtime.
+   ![quiz_with_dashboard](https://github.com/user-attachments/assets/85b13a99-3a3f-4e36-a54c-ad2b62105d45)
+
+8. Once the game is over you will onboard to the Leaderboard screen where you can see the Winners based on the Score. Below is the screen shown
+   ![final_dashboard](https://github.com/user-attachments/assets/a8d4e3b3-b5e3-45d0-ba71-556dcb0abd95)
+
+
+
+
+
+
