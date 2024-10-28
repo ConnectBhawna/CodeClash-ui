@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from 'pixel-retroui';
+import { Card } from 'pixel-retroui';
 import {
   Brain,
   Send,
@@ -21,9 +22,9 @@ import { GamePage } from "./game-page";
 import { RetroQuizList } from "./retro-quiz-list";
 
 const initialMessages = [
-  { user: "Alice", message: "Good luck everyone!" },
-  { user: "Bob", message: "This is fun!" },
-  { user: "Charlie", message: "I'm ready the next question!" },
+  { user: "Bhawna Chauhan", message: "Good luck everyone!" },
+  { user: "Rohit", message: "This is fun!" },
+  { user: "Harsh Kumar", message: "I'm ready the next question!" },
 ];
 
 export function GameDashboard({ session }) {
@@ -207,15 +208,15 @@ export function GameDashboard({ session }) {
       setProgressState("game_start");
     };
     return (
-      <div className="h-full w-full  bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
+      <div className="h-full w-full  bg-gradient-to-br from-blue-900 via-black to-blue-900 p-8">
         <div className="container mx-auto bg-white bg-opacity-90 rounded-xl shadow-2xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-800">AI Quiz Game</h1>
+            <h1 className="text-4xl font-minecraft mb-4 font-bold text-gray-800">CodeClash</h1>
             <div className="flex items-center gap-2 text-xl text-gray-800">
-              <span>Quiz-id : {gameState[0]?.quizId}</span>
-              <span>STATUS : {gameState[0]?.status}</span>
+              <span className="font-minecraft mb-4">Quiz-id : {gameState[0]?.quizId}</span>
+              <span className="font-minecraft mb-4">STATUS : {gameState[0]?.status}</span>
               <Users className="h-6 w-6 text-blue-500" />
-              <span>{gameState[0]?.players.length} people joined</span>
+              <span className="font-minecraft mb-4">{gameState[0]?.players.length} people joined</span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
