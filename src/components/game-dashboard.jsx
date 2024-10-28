@@ -24,6 +24,7 @@ import { LandingPage } from "./landing-page";
 import { GameInfoComponent } from "./game-info";
 import { GamePage } from "./game-page";
 import { RetroQuizList } from "./retro-quiz-list";
+import { useRouter } from "next/navigation";
 
 const initialMessages = [
   { user: "Bhawna Chauhan", message: "Good luck everyone!" },
@@ -32,7 +33,7 @@ const initialMessages = [
 ];
 
 export function GameDashboard({ session }) {
-  const [progressState, setProgressState] = useState("login");
+  const [progressState, setProgressState] = useState("game_start");
   const [gameState, setGameState] = useState([]);
   const [quizId, setQuizId] = useState("");
   const [currentGames, setCurrentGames] = useState([]);
@@ -40,20 +41,22 @@ export function GameDashboard({ session }) {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [questionNumber, setQuestionNumber] = useState(1);
+  const [selectedOption, setSelectedOption] = useState("");
 
   const socket = useSocket(session.id_token);
-  const [msg, setMsg] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  const [selectedOption, setSelectedOption] = useState("");
   const [chatMessages, setChatMessages] = useState(initialMessages);
   const [chatInput, setChatInput] = useState("");
-  const [questionNumber, setQuestionNumber] = useState(1);
   const [isCorrect, setIsCorrect] = useState(null);
 
   console.log("progressState-dashboard", progressState);
   console.log("gameState-dashboard", gameState);
   console.log("gameState-ques", currentQuestion);
+  console.log("sel", selectedOption);
+
+  const router = useRouter();
 
   const handleStartTimer = () => {
     setIsRunning(true);
@@ -88,22 +91,28 @@ export function GameDashboard({ session }) {
 
       if (message.type === "GAME_STARTED") {
         setProgressState("game_start");
-      }
-
-      if (
-        message.type === "GAME_STARTED" ||
-        message.type === "LEADERBOARD_UPDATE"
-      ) {
         setGameState(message.gameState);
         setCurrentQuestion(message.gameState[0].currentQuestion);
         setLiveLeaderboard(message.leaderboard);
+        setQuestionNumber(message.gameState[0].currentQuestionIndex + 1);
+        handleStartTimer();
+      }
+
+      if (message.type === "LEADERBOARD_UPDATE") {
+        setGameState(message.gameState);
+        setCurrentQuestion(message.gameState[0].currentQuestion);
+        setQuestionNumber(message.gameState[0].currentQuestionIndex + 1);
+        setLiveLeaderboard(message.leaderboard);
+        handleStartTimer();
       }
 
       if (message.type === "LIST_GAMES") {
         setCurrentGames(message.games);
       }
 
-      setMsg((prev) => [...prev, message]);
+      if (message.type === "GAME_OVER") {
+        router.push("/leaderboard");
+      }
     };
 
     return () => {
@@ -132,7 +141,7 @@ export function GameDashboard({ session }) {
         type: "ANSWER_QUESTION",
         quizId: quizId,
         timeTaken: timeLeft,
-        answer: currentQuestion.options.indexOf(selectedOption),
+        answer: parseInt(selectedOption),
       })
     );
 
@@ -140,12 +149,9 @@ export function GameDashboard({ session }) {
       JSON.stringify({
         type: "NEXT_QUESTION",
         quizId: quizId,
-        timeTaken: timeLeft,
-        answer: currentQuestion.options.indexOf(selectedOption),
       })
     );
     setSelectedOption(null);
-    handleResetTimer();
   };
 
   const renderGameContent = () => {
@@ -250,7 +256,6 @@ export function GameDashboard({ session }) {
         })
       );
       setProgressState("game_start");
-      handleStartTimer();
     };
 
     const leaveGame = () => {
@@ -386,6 +391,10 @@ export function GameDashboard({ session }) {
   };
 
   const renderDashboard = () => {
+    if (timeLeft === 0) {
+      nextQuestion();
+      handleResetTimer();
+    }
     return (
       <div className="h-full w-full bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
         <div className="container mx-auto bg-white bg-opacity-90 rounded-xl shadow-2xl p-6">
@@ -440,24 +449,16 @@ export function GameDashboard({ session }) {
                         <label
                           key={index}
                           className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors 
-                          ${
-                            selectedOption === option
-                              ? isCorrect === null
-                                ? "bg-purple-300"
-                                : isCorrect
-                                ? "bg-green-300"
-                                : "bg-red-300"
-                              : "bg-purple-100"
-                          } 
+                         
                           hover:bg-purple-200`}
                         >
                           <input
                             type="radio"
                             name="answer"
-                            value={option}
-                            checked={selectedOption === option}
+                            value={index.toString()}
+                            checked={selectedOption === index.toString()}
                             onChange={(e) => setSelectedOption(e.target.value)}
-                            className="form-radio text-purple-500 hidden"
+                            className=""
                           />
                           <span className="text-lg">{option}</span>
                         </label>
@@ -557,7 +558,7 @@ export function GameDashboard({ session }) {
           connected
         </div>
       )}
-      {JSON.stringify(gameState)}
+      {/* {JSON.stringify(gameState)} */}
       {renderGameContent()}
     </>
   );
