@@ -122,7 +122,7 @@ export function GameInfoComponent({ setProgressState }) {
           initialPosition={logo.position}
         />
       ))}
-      <div className="w-full max-w-md">
+      <div className="max-w-lg w-full bg-gray-800 bg-opacity">
         <Card className="max-w-lg w-full bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden z-10">
           <div className="p-6 sm:p-8 flex flex-col items-center text-center">
             <h2 className="text-2xl font-bold text-center text-white">

@@ -69,8 +69,8 @@ export function GamePage({ socket, setProgressState }) {
 
   const renderSelectPage = () => {
     return (
-      <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
-        <div className="container mx-auto p-4 max-w-2xl relative z-10">
+      <div>
+        <div className="max-w-lg w-full bg-gray-800 bg-opacity">
           <Card className="mb-8 bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg backdrop-blur-sm">
             <h1 className="text-3xl font-bold mb-6 text-center">
               Select Your Avatar and Tech Interests
@@ -82,17 +82,16 @@ export function GamePage({ socket, setProgressState }) {
                 {avatars.map((avatar) => (
                   <div
                     key={avatar.id}
-                    className="relative"
-                    onMouseEnter={() => setHoveredAvatar(avatar.id)}
-                    onMouseLeave={() => setHoveredAvatar(null)}
-                    onClick={() => handleAvatarSelect(avatar.id)}
-                    className={`cursor-pointer w-16 h-16 transition-all duration-200 ${
+                    className={`relative cursor-pointer w-16 h-16 transition-all duration-200 ${
                       selectedAvatar === avatar.id
                         ? "bg-primary text-white"
                         : hoveredAvatar === avatar.id
                         ? "bg-gray-700"
                         : "bg-gray-600"
                     }`}
+                    onMouseEnter={() => setHoveredAvatar(avatar.id)}
+                    onMouseLeave={() => setHoveredAvatar(null)}
+                    onClick={() => handleAvatarSelect(avatar.id)}
                   >
                     <img src={avatar.src} alt={avatar.alt} className="w-full h-full object-cover rounded-full" />
                     {selectedAvatar === avatar.id && (
